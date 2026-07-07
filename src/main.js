@@ -127,9 +127,10 @@ function updateRateUI(item, history) {
     priceEl.classList.add(colorClass);
   }
 
-  // Draw sparkline
+  // Set colors instantly
   if (pathEl && fillEl) {
-    drawSparkline(history, pathEl, fillEl, trendColor, trendGradient);
+    if (trendColor) pathEl.setAttribute("stroke", trendColor);
+    if (trendGradient) fillEl.setAttribute("fill", trendGradient);
   }
 }
 
@@ -142,9 +143,32 @@ function formatPriceDecimal(value) {
   });
 }
 
-function drawSparkline(history, pathEl, fillEl, trendColor, trendGradient) {
-  if (!history || history.length === 0) return;
+// --- Continuous Fluid Sparkline Animation Loop ---
+let waveTime = 0;
 
+function animateSparklines() {
+    waveTime += 0.05; // Ripple flowing speed
+    
+    monitoredItems.forEach(item => {
+        const history = priceHistory[item];
+        if (!history || history.length === 0) return;
+        
+        const map = domMap[item];
+        if (!map) return;
+        
+        const pathEl = document.getElementById(map.path);
+        const fillEl = document.getElementById(map.fill);
+        if (!pathEl || !fillEl) return;
+        
+        const dPath = calculateFluidPath(history, waveTime);
+        pathEl.setAttribute("d", dPath);
+        fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
+    });
+    
+    requestAnimationFrame(animateSparklines);
+}
+
+function calculateFluidPath(history, time) {
   let dataPoints = history;
   if (dataPoints.length === 1) {
     dataPoints = [history[0], history[0]];
@@ -161,26 +185,27 @@ function drawSparkline(history, pathEl, fillEl, trendColor, trendGradient) {
 
   const points = dataPoints.map((point, i) => {
     const p = parseFloat(point.price);
-    let normalized;
+    let normalized = (p - minPrice) / range;
+    
     if (maxPrice === minPrice) {
-      // Stagnant prices: inject a gentle wave so it "simply moves" as requested
-      normalized = 0.5 + (Math.sin(i * 1.5) * 0.15);
-    } else {
-      normalized = (p - minPrice) / range;
+      normalized = 0.5; // Perfectly centered if entirely stagnant
     }
+    
     const x = i * (width / (dataPoints.length - 1));
-    const y = startY - (normalized * height);
+    // The Magic: Add a continuous flowing sine ripple on top of the real data Y
+    const ripple = Math.sin(time + (x * 0.1)) * 2; 
+    
+    const y = startY - (normalized * height) + ripple;
     return { x, y };
   });
 
   let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
   
-  // Create bezier curve control points
+  // Create bezier curve control points for smooth fluid lines
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
     const p1 = points[i + 1];
     
-    // Control points for a smooth curve (horizontal tangent)
     const cp1x = p0.x + (p1.x - p0.x) * 0.4;
     const cp1y = p0.y;
     const cp2x = p0.x + (p1.x - p0.x) * 0.6;
@@ -188,22 +213,12 @@ function drawSparkline(history, pathEl, fillEl, trendColor, trendGradient) {
 
     dPath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
   }
-
-  if (pathEl) {
-    pathEl.setAttribute("d", dPath);
-    if (trendColor) pathEl.setAttribute("stroke", trendColor);
-    // Retrigger animation
-    pathEl.style.animation = 'none';
-    pathEl.offsetHeight; 
-    pathEl.style.animation = 'drawLine 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards';
-  }
-
-  if (fillEl) {
-    const dFill = `${dPath} L${width} 40 L0 40 Z`;
-    fillEl.setAttribute("d", dFill);
-    if (trendGradient) fillEl.setAttribute("fill", trendGradient);
-  }
+  
+  return dPath;
 }
+
+// Start the continuous animation loop
+requestAnimationFrame(animateSparklines);
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
