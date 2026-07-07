@@ -100,17 +100,15 @@
     </script>
 <style>
         .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0px 20px 40px rgba(0,0,0,0.04);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.08);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .glass-card:hover {
             transform: translateY(-8px) scale(1.03);
-            box-shadow: 0px 30px 60px rgba(0, 67, 200, 0.1);
-            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.15);
+            background: #ffffff;
         }
         .trend-up { color: #0b513d; background: #b0f0d6; }
         .trend-down { color: #93000a; background: #ffdad6; }
@@ -197,7 +195,7 @@
 </div>
 </nav>
 <!-- Shared Components: TopAppBar -->
-<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm md:w-[calc(100%-280px)] md:left-[280px]">
+<header class="bg-white dark:bg-surface-dim fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm md:w-[calc(100%-280px)] md:left-[280px]">
 <div class="flex items-center justify-between px-container-margin h-24 w-full max-w-7xl mx-auto relative pt-4">
 <div class="flex items-center gap-md">
 <button class="press-effect md:hidden text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity">
@@ -307,7 +305,7 @@
 </div>
 </main>
 <!-- Shared Components: BottomNavBar (Mobile) -->
-<nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] flex justify-around items-center px-4 py-3 pb-safe bg-surface/85 dark:bg-inverse-surface/85 backdrop-blur-2xl z-50 rounded-[32px] border border-outline-variant/30 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
+<nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-inverse-surface z-50 rounded-[32px] border border-outline-variant/30 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
 <a class="press-effect flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold font-label-caps text-label-caps" href="#">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">show_chart</span>
 <span class="">Markets</span>
