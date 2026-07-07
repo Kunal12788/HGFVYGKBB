@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
 <title>SSR BULLION - Live Spot Rates</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@700&amp;display=swap" rel="stylesheet"/>
@@ -162,11 +162,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
 </head>
 <body class="bg-[#66A3FF] text-white antialiased min-h-screen pb-24 md:pb-0 md:pl-[280px]">
 <!-- Shared Components: Navigation Drawer (Desktop) -->
@@ -331,21 +326,6 @@
 <script type="module" src="/src/main.js"></script>
 
 <script>
-    // Intersection Observer to re-trigger chart animations when they come into view
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const path = entry.target.querySelector('.chart-path');
-                if (path) {
-                    path.style.animation = 'none';
-                    path.offsetHeight; // trigger reflow
-                    path.style.animation = 'drawLine 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards';
-                }
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.glass-card').forEach(card => observer.observe(card));
 
     // Simple toggle logic for demo purposes
     const toggleButtons = document.querySelectorAll('.animate-fade-in-up button');
