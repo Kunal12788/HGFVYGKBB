@@ -207,7 +207,7 @@ function formatPriceDecimal(value) {
   });
 }
 
-function generateSplinePath(history) {
+function generateSplinePath(history, isStagnant = false, time = 0) {
   let dataPoints = history;
   if (dataPoints.length === 1) {
     dataPoints = [history[0], history[0]];
@@ -231,7 +231,13 @@ function generateSplinePath(history) {
     }
     
     const x = i * (width / (dataPoints.length - 1));
-    const y = startY - (normalized * height);
+    let y = startY - (normalized * height);
+    
+    // Only apply the fluid movement pattern if the data is stagnant!
+    if (isStagnant) {
+        y += Math.sin(time + (x * 0.1)) * 1.5; // Gentle, elegant ripple
+    }
+    
     return { x, y };
   });
 
@@ -253,6 +259,43 @@ function generateSplinePath(history) {
   
   return dPath;
 }
+
+// --- Conditional Stagnant Animation Loop ---
+let waveTime = 0;
+function animateStagnantGraphs() {
+    waveTime += 0.03; // Very slow and elegant speed
+    
+    const allItems = ['gold_995_100gms', 'silver_999_1kg', 'gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'];
+    
+    allItems.forEach(item => {
+        let history = priceHistory[item];
+        if (!history || history.length === 0) {
+            history = [{ price: 100 }, { price: 100 }];
+        }
+        
+        const map = domMap[item];
+        if (!map) return;
+        
+        const pathEl = document.getElementById(map.path);
+        const fillEl = document.getElementById(map.fill);
+        if (!pathEl || !fillEl) return;
+        
+        const prices = history.map(r => parseFloat(r.price));
+        const isStagnant = Math.max(...prices) === Math.min(...prices);
+        
+        // ONLY mathematically ripple if the data is completely stagnant
+        if (isStagnant) {
+            const dPath = generateSplinePath(history, true, waveTime);
+            pathEl.setAttribute("d", dPath);
+            fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
+        }
+    });
+    
+    requestAnimationFrame(animateStagnantGraphs);
+}
+
+// Start the conditional loop
+requestAnimationFrame(animateStagnantGraphs);
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
