@@ -37,75 +37,105 @@
         <!-- Toggle -->
         <div class="flex justify-center pt-3 px-4 shrink-0">
             <div class="bg-brand-light rounded-full p-1 flex w-full max-w-[280px]">
-                <button class="flex-1 py-1.5 bg-brand-blue text-white rounded-full font-semibold shadow-sm text-[13px]">Gold</button>
-                <button class="flex-1 py-1.5 text-slate-500 font-semibold text-[13px]">Silver</button>
+                <button id="tab-gold" class="flex-1 py-1.5 bg-brand-blue text-white rounded-full font-semibold shadow-sm text-[13px] transition-colors">Gold</button>
+                <button id="tab-silver" class="flex-1 py-1.5 text-slate-500 font-semibold text-[13px] transition-colors">Silver</button>
             </div>
         </div>
 
-        <!-- 24K Gold Main Card -->
-        <div class="px-4 mt-3 shrink-0">
-            <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] relative">
-                <div class="pt-4 pb-4 flex flex-col items-center">
+        <!-- GOLD SECTION -->
+        <div id="gold-section" class="flex-1 flex flex-col w-full">
+            <!-- 24K Gold Main Card -->
+            <div class="px-4 mt-3 shrink-0">
+                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] relative">
+                    <div class="pt-4 pb-4 flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">99.99%</span>
+                            <span class="text-slate-800 text-[16px] font-medium">24K Fine Gold</span>
+                        </div>
+                        <div class="flex items-baseline justify-center gap-1 mt-0.5">
+                            <span id="gold-price" class="text-brand-blue text-[38px] font-bold tracking-tight tabular-nums">--</span>
+                            <span class="text-[12px] font-semibold text-slate-500 mb-1">/10g</span>
+                        </div>
+                        <div class="mt-2.5">
+                            <span class="bg-success-bg text-success-text text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                Live Update
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purity Grid -->
+            <div class="grid grid-cols-2 gap-3 px-4 mt-4 flex-1 pb-2">
+                <!-- 22K -->
+                <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
                     <div class="flex items-center gap-2 mb-1.5">
-                        <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">99.99%</span>
-                        <span class="text-slate-800 text-[16px] font-medium">24K Fine Gold</span>
+                        <span class="text-slate-900 font-semibold text-[13px]">22K Gold</span>
+                        <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">91.6%</span>
                     </div>
-                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
-                        <span id="gold-price" class="text-brand-blue text-[38px] font-bold tracking-tight tabular-nums">--</span>
-                        <span class="text-[12px] font-semibold text-slate-500 mb-1">/10g</span>
+                    <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-22k-price">--</span></div>
+                </div>
+                <!-- 20K -->
+                <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-slate-900 font-semibold text-[13px]">20K Gold</span>
+                        <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">83.3%</span>
                     </div>
-                    <div class="mt-2.5">
-                        <span class="bg-success-bg text-success-text text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px]">trending_up</span>
-                            Live Update
-                        </span>
+                    <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-20k-price">--</span></div>
+                </div>
+                <!-- 18K -->
+                <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-slate-900 font-semibold text-[13px]">18K Gold</span>
+                        <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">75.0%</span>
                     </div>
+                    <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-18k-price">--</span></div>
+                </div>
+                <!-- 14K -->
+                <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-slate-900 font-semibold text-[13px]">14K Gold</span>
+                        <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">58.3%</span>
+                    </div>
+                    <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-14k-price">--</span></div>
+                </div>
+                <!-- 9K (Horizontally Long via col-span-2) -->
+                <div class="col-span-2 bg-white rounded-2xl p-4 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-slate-900 font-semibold text-[13px]">9K Gold</span>
+                        <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">37.5%</span>
+                    </div>
+                    <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-9k-price">--</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Purity Grid -->
-        <div class="grid grid-cols-2 gap-3 px-4 mt-4 flex-1 pb-2">
-            <!-- 22K -->
-            <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-                <div class="flex items-center gap-2 mb-1.5">
-                    <span class="text-slate-900 font-semibold text-[13px]">22K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">91.6%</span>
+        <!-- SILVER SECTION -->
+        <div id="silver-section" class="hidden flex-1 flex flex-col w-full">
+            <!-- 999 Silver Main Card -->
+            <div class="px-4 mt-3 shrink-0">
+                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] relative">
+                    <div class="pt-4 pb-4 flex flex-col items-center">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">99.9%</span>
+                            <span class="text-slate-800 text-[16px] font-medium">1KG Fine Silver</span>
+                        </div>
+                        <div class="flex items-baseline justify-center gap-1 mt-0.5">
+                            <span id="silver-price" class="text-brand-blue text-[38px] font-bold tracking-tight tabular-nums">--</span>
+                            <span class="text-[12px] font-semibold text-slate-500 mb-1">/1kg</span>
+                        </div>
+                        <div class="mt-2.5">
+                            <span class="bg-success-bg text-success-text text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                Live Update
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-22k-price">--</span></div>
             </div>
-            <!-- 20K -->
-            <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-                <div class="flex items-center gap-2 mb-1.5">
-                    <span class="text-slate-900 font-semibold text-[13px]">20K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">83.3%</span>
-                </div>
-                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-20k-price">--</span></div>
-            </div>
-            <!-- 18K -->
-            <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-                <div class="flex items-center gap-2 mb-1.5">
-                    <span class="text-slate-900 font-semibold text-[13px]">18K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">75.0%</span>
-                </div>
-                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-18k-price">--</span></div>
-            </div>
-            <!-- 14K -->
-            <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-                <div class="flex items-center gap-2 mb-1.5">
-                    <span class="text-slate-900 font-semibold text-[13px]">14K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">58.3%</span>
-                </div>
-                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-14k-price">--</span></div>
-            </div>
-            <!-- 9K (Horizontally Long via col-span-2) -->
-            <div class="col-span-2 bg-white rounded-2xl p-4 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
-                <div class="flex items-center gap-2 mb-1.5">
-                    <span class="text-slate-900 font-semibold text-[13px]">9K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">37.5%</span>
-                </div>
-                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-9k-price">--</span></div>
-            </div>
+            <!-- Filler to push bottom elements if needed -->
+            <div class="flex-1"></div>
         </div>
 
     </div>

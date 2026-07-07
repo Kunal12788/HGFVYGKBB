@@ -198,39 +198,30 @@ function drawSparkline(history, pathEl, fillEl) {
 document.addEventListener('DOMContentLoaded', () => {
     const tabGold = document.getElementById('tab-gold');
     const tabSilver = document.getElementById('tab-silver');
-    const tabIndicator = document.getElementById('tab-indicator');
     const goldSection = document.getElementById('gold-section');
     const silverSection = document.getElementById('silver-section');
 
-    if(tabGold && tabSilver) {
+    if(tabGold && tabSilver && goldSection && silverSection) {
         tabGold.addEventListener('click', () => {
-            tabIndicator.style.transform = 'translateX(0)';
-            tabGold.classList.add('text-white');
-            tabGold.classList.remove('text-on-surface');
-            tabSilver.classList.remove('text-white');
-            tabSilver.classList.add('text-on-surface');
+            goldSection.classList.remove('hidden');
+            silverSection.classList.add('hidden');
             
-            silverSection.classList.add('opacity-0');
-            setTimeout(() => {
-                silverSection.classList.add('hidden');
-                goldSection.classList.remove('hidden');
-                setTimeout(() => goldSection.classList.remove('opacity-0'), 50);
-            }, 300);
+            tabGold.classList.add('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabGold.classList.remove('text-slate-500');
+            
+            tabSilver.classList.remove('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabSilver.classList.add('text-slate-500');
         });
 
         tabSilver.addEventListener('click', () => {
-            tabIndicator.style.transform = 'translateX(100%)';
-            tabSilver.classList.add('text-white');
-            tabSilver.classList.remove('text-on-surface');
-            tabGold.classList.remove('text-white');
-            tabGold.classList.add('text-on-surface');
-
-            goldSection.classList.add('opacity-0');
-            setTimeout(() => {
-                goldSection.classList.add('hidden');
-                silverSection.classList.remove('hidden');
-                setTimeout(() => silverSection.classList.remove('opacity-0'), 50);
-            }, 300);
+            silverSection.classList.remove('hidden');
+            goldSection.classList.add('hidden');
+            
+            tabSilver.classList.add('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabSilver.classList.remove('text-slate-500');
+            
+            tabGold.classList.remove('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabGold.classList.add('text-slate-500');
         });
     }
 });
