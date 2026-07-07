@@ -304,7 +304,64 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabIndicator = document.getElementById('tab-indicator');
     const goldSection = document.getElementById('gold-section');
     const silverSection = document.getElementById('silver-section');
+    
+    // Bottom Navigation Elements
+    const navMarkets = document.getElementById('nav-markets');
+    const navBank = document.getElementById('nav-bank');
+    const navIntelligence = document.getElementById('nav-intelligence');
+    const navSecure = document.getElementById('nav-secure');
+    
+    const screenMarkets = document.getElementById('screen-markets');
+    const screenBank = document.getElementById('screen-bank');
+    const screenIntelligence = document.getElementById('screen-intelligence');
+    const screenSecure = document.getElementById('screen-secure');
+    
+    // Bottom Nav Routing Logic
+    const navButtons = [navMarkets, navBank, navIntelligence, navSecure];
+    const navScreens = [screenMarkets, screenBank, screenIntelligence, screenSecure];
 
+    function switchNavScreen(activeButton, activeScreen) {
+        // Reset all buttons to inactive state
+        navButtons.forEach(btn => {
+            if(!btn) return;
+            btn.classList.remove('text-brand-blue');
+            btn.classList.add('text-slate-800');
+            // Remove bold from the text span
+            const textSpan = btn.querySelector('span:nth-child(2)');
+            if(textSpan) {
+                textSpan.classList.remove('font-bold');
+                textSpan.classList.add('font-semibold');
+            }
+        });
+
+        // Set active button state
+        if(activeButton) {
+            activeButton.classList.remove('text-slate-800');
+            activeButton.classList.add('text-brand-blue');
+            const textSpan = activeButton.querySelector('span:nth-child(2)');
+            if(textSpan) {
+                textSpan.classList.remove('font-semibold');
+                textSpan.classList.add('font-bold');
+            }
+        }
+
+        // Hide all screens
+        navScreens.forEach(screen => {
+            if(screen) screen.classList.add('hidden');
+        });
+
+        // Show active screen
+        if(activeScreen) {
+            activeScreen.classList.remove('hidden');
+        }
+    }
+
+    if(navMarkets) navMarkets.addEventListener('click', () => switchNavScreen(navMarkets, screenMarkets));
+    if(navBank) navBank.addEventListener('click', () => switchNavScreen(navBank, screenBank));
+    if(navIntelligence) navIntelligence.addEventListener('click', () => switchNavScreen(navIntelligence, screenIntelligence));
+    if(navSecure) navSecure.addEventListener('click', () => switchNavScreen(navSecure, screenSecure));
+
+    // Top Toggle Logic (Gold / Silver)
     if(tabGold && tabSilver && goldSection && silverSection && tabIndicator) {
         tabGold.addEventListener('click', () => {
             tabIndicator.style.transform = 'translateX(0)';
