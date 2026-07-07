@@ -108,20 +108,14 @@
             border: 1px solid rgba(0, 0, 0, 0.04);
             border-top: 1px solid rgba(255, 255, 255, 0.8);
             /* Clean, deep levitating shadow for a thin card */
-            box-shadow: 
-                0px 24px 48px -12px rgba(0, 30, 80, 0.25),
-                0px 12px 24px -8px rgba(0, 30, 80, 0.15),
-                0px 4px 8px -2px rgba(0, 30, 80, 0.1);
+            box-shadow: none !important;
             /* Explicit transitions prevent initial layout shifts/resizing on load */
             transition: box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @media (hover: hover) {
             .glass-card:hover {
                 transform: translateY(-8px);
-                box-shadow: 
-                    0px 32px 64px -16px rgba(0, 30, 80, 0.3),
-                    0px 16px 32px -8px rgba(0, 30, 80, 0.2),
-                    0px 8px 16px -4px rgba(0, 30, 80, 0.15);
+                box-shadow: none !important;
                 background: #ffffff;
             }
         }
@@ -239,7 +233,7 @@
 <!-- Grid 1 (22K and 20K) -->
 <div class="grid grid-cols-2 gap-3 md:gap-4 flex-1">
     <!-- 22K Widget -->
-    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center hover:shadow-lg transition-shadow" style="animation-delay: 0.2s;">
+    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center  transition-shadow" style="animation-delay: 0.2s;">
         <div class="flex flex-col justify-center h-full z-10">
             <div class="flex items-center gap-1 mb-0.5">
                 <h3 class="font-display-xl text-[14px] md:text-[18px] font-bold text-on-surface">22K Gold</h3>
@@ -255,7 +249,7 @@
     </div>
 
     <!-- 20K Widget -->
-    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center hover:shadow-lg transition-shadow" style="animation-delay: 0.3s;">
+    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center  transition-shadow" style="animation-delay: 0.3s;">
         <div class="flex flex-col justify-center h-full z-10">
             <div class="flex items-center gap-1 mb-0.5">
                 <h3 class="font-display-xl text-[14px] md:text-[18px] font-bold text-on-surface">20K Gold</h3>
@@ -274,7 +268,7 @@
 <!-- Grid 2 (18K and 14K) -->
 <div class="grid grid-cols-2 gap-3 md:gap-4 flex-1">
     <!-- 18K Widget -->
-    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center hover:shadow-lg transition-shadow" style="animation-delay: 0.4s;">
+    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center  transition-shadow" style="animation-delay: 0.4s;">
         <div class="flex flex-col justify-center h-full z-10">
             <div class="flex items-center gap-1 mb-0.5">
                 <h3 class="font-display-xl text-[14px] md:text-[18px] font-bold text-on-surface">18K Gold</h3>
@@ -290,7 +284,7 @@
     </div>
 
     <!-- 14K Widget -->
-    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center hover:shadow-lg transition-shadow" style="animation-delay: 0.5s;">
+    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center  transition-shadow" style="animation-delay: 0.5s;">
         <div class="flex flex-col justify-center h-full z-10">
             <div class="flex items-center gap-1 mb-0.5">
                 <h3 class="font-display-xl text-[14px] md:text-[18px] font-bold text-on-surface">14K Gold</h3>
@@ -309,7 +303,7 @@
 <!-- Centered Narrow (9K) - Compact Strip -->
 <div class="flex-1 w-full">
     <!-- 9K Widget -->
-    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center hover:shadow-lg transition-shadow h-full w-full" style="animation-delay: 0.6s;">
+    <div class="animate-fade-in-up glass-card !rounded-xl p-3 relative overflow-hidden flex justify-between items-center  transition-shadow h-full w-full" style="animation-delay: 0.6s;">
         <div class="flex flex-col justify-center h-full z-10">
             <div class="flex items-center gap-1 mb-0.5">
                 <h3 class="font-display-xl text-[14px] md:text-[18px] font-bold text-on-surface">9K Gold</h3>
