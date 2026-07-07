@@ -102,31 +102,34 @@ function updateRateUI(item, history) {
   const pathEl = document.getElementById(map.path);
   const fillEl = document.getElementById(map.fill);
 
+  let trendColor = '#2563eb';
+  let trendGradient = 'url(#sparkline-gradient-blue)';
+  let colorClass = 'text-primary';
+
+  if (history.length > 1) {
+    const currentVal = parseFloat(current.price);
+    const prevVal = parseFloat(history[history.length - 2].price);
+    
+    if (currentVal > prevVal) {
+      colorClass = 'text-green-500';
+      trendColor = '#16a34a';
+      trendGradient = 'url(#sparkline-gradient-green)';
+    } else if (currentVal < prevVal) {
+      colorClass = 'text-red-500';
+      trendColor = '#dc2626';
+      trendGradient = 'url(#sparkline-gradient-red)';
+    }
+  }
+
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
-    
-    // Update color based on price change
     priceEl.classList.remove('text-primary', 'text-green-500', 'text-red-500');
-    
-    if (history.length > 1) {
-      const currentVal = parseFloat(current.price);
-      const prevVal = parseFloat(history[history.length - 2].price);
-      
-      if (currentVal > prevVal) {
-        priceEl.classList.add('text-green-500');
-      } else if (currentVal < prevVal) {
-        priceEl.classList.add('text-red-500');
-      } else {
-        priceEl.classList.add('text-primary');
-      }
-    } else {
-      priceEl.classList.add('text-primary');
-    }
+    priceEl.classList.add(colorClass);
   }
 
   // Draw sparkline
   if (pathEl && fillEl) {
-    drawSparkline(history, pathEl, fillEl);
+    drawSparkline(history, pathEl, fillEl, trendColor, trendGradient);
   }
 }
 
@@ -139,7 +142,7 @@ function formatPriceDecimal(value) {
   });
 }
 
-function drawSparkline(history, pathEl, fillEl) {
+function drawSparkline(history, pathEl, fillEl, trendColor, trendGradient) {
   if (!history || history.length === 0) return;
 
   let dataPoints = history;
@@ -188,6 +191,7 @@ function drawSparkline(history, pathEl, fillEl) {
 
   if (pathEl) {
     pathEl.setAttribute("d", dPath);
+    if (trendColor) pathEl.setAttribute("stroke", trendColor);
     // Retrigger animation
     pathEl.style.animation = 'none';
     pathEl.offsetHeight; 
@@ -197,6 +201,7 @@ function drawSparkline(history, pathEl, fillEl) {
   if (fillEl) {
     const dFill = `${dPath} L${width} 40 L0 40 Z`;
     fillEl.setAttribute("d", dFill);
+    if (trendGradient) fillEl.setAttribute("fill", trendGradient);
   }
 }
 

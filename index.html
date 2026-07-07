@@ -23,6 +23,23 @@
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body class="bg-[#F8F9FB] text-slate-800 font-sans h-screen w-screen overflow-hidden antialiased flex justify-center">
+    <!-- Dynamic Sparkline Gradients -->
+    <svg width="0" height="0" class="hidden absolute">
+        <defs>
+            <linearGradient id="sparkline-gradient-blue" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#2563eb" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0"/>
+            </linearGradient>
+            <linearGradient id="sparkline-gradient-green" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#16a34a" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#16a34a" stop-opacity="0.0"/>
+            </linearGradient>
+            <linearGradient id="sparkline-gradient-red" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#dc2626" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+            </linearGradient>
+        </defs>
+    </svg>
   <div class="h-full w-full max-w-[430px] relative flex flex-col bg-white overflow-hidden shadow-2xl">
     
     <!-- Header (Increased size of the SSR BULLION box) -->
