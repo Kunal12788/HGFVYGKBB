@@ -47,9 +47,31 @@ async function startApp() {
   subscribeToRealtime();
 }
 
+// Derived Items configuration
+const derivedGoldItems = [
+    { id: 'gold_22k', multiplier: 0.955 },
+    { id: 'gold_20k', multiplier: 0.87 },
+    { id: 'gold_18k', multiplier: 0.795 },
+    { id: 'gold_14k', multiplier: 0.625 },
+    { id: 'gold_9k', multiplier: 0.42 }
+];
+
+function calculateBaseNumber(price24k) {
+    const rawBase = (parseFloat(price24k) * 100 / 103 / 99.50) * 100;
+    const withoutDecimals = Math.trunc(rawBase);
+    return Math.round(withoutDecimals / 100) * 100; // Round to nearest 100 based on tens digit
+}
+
+function calculateDerivedPrice(baseNumber, multiplier) {
+    const raw = baseNumber * multiplier;
+    const withoutDecimals = Math.trunc(raw);
+    return Math.round(withoutDecimals / 100) * 100; // Round to nearest 100 based on tens digit
+}
+
 async function fetchLatestPrices() {
-  // Fetch latest 10 rows for all items simultaneously for performance
-  const promises = monitoredItems.map(item => {
+  // Only fetch the base prices from the database
+  const dbItems = ['gold_995_100gms', 'silver_999_1kg'];
+  const promises = dbItems.map(item => {
       return supabaseClient
         .from('bullion_rates')
         .select('*')
@@ -61,10 +83,24 @@ async function fetchLatestPrices() {
   const results = await Promise.all(promises);
 
   results.forEach((res, index) => {
-      const item = monitoredItems[index];
+      const item = dbItems[index];
       if (!res.error && res.data && res.data.length > 0) {
-          priceHistory[item] = res.data.reverse();
+          const fetchedHistory = res.data.reverse();
+          priceHistory[item] = fetchedHistory;
           updateRateUI(item, priceHistory[item]);
+          
+          // If it's the 24K gold, instantly generate all derived histories!
+          if (item === 'gold_995_100gms') {
+              derivedGoldItems.forEach(derived => {
+                  // Generate synthetic history rows
+                  priceHistory[derived.id] = fetchedHistory.map(row => {
+                      const baseNumber = calculateBaseNumber(row.price);
+                      const finalPrice = calculateDerivedPrice(baseNumber, derived.multiplier);
+                      return { ...row, item: derived.id, price: finalPrice }; 
+                  });
+                  updateRateUI(derived.id, priceHistory[derived.id]);
+              });
+          }
       }
   });
 }
@@ -80,13 +116,29 @@ function subscribeToRealtime() {
 
 function handleNewRate(record) {
   const item = record.item;
-  if (!priceHistory[item]) return; // ignore unmonitored items
   
-  priceHistory[item].push(record);
-  if (priceHistory[item].length > 10) {
-    priceHistory[item].shift(); // Keep only max 10 points
+  if (item === 'gold_995_100gms') {
+      // Update 24k
+      priceHistory[item].push(record);
+      if (priceHistory[item].length > 10) priceHistory[item].shift();
+      updateRateUI(item, priceHistory[item]);
+      
+      // Instantly generate and update all derived purities
+      const baseNumber = calculateBaseNumber(record.price);
+      derivedGoldItems.forEach(derived => {
+          const finalPrice = calculateDerivedPrice(baseNumber, derived.multiplier);
+          const syntheticRecord = { ...record, item: derived.id, price: finalPrice };
+          
+          priceHistory[derived.id].push(syntheticRecord);
+          if (priceHistory[derived.id].length > 10) priceHistory[derived.id].shift();
+          updateRateUI(derived.id, priceHistory[derived.id]);
+      });
+      
+  } else if (item === 'silver_999_1kg') {
+      priceHistory[item].push(record);
+      if (priceHistory[item].length > 10) priceHistory[item].shift();
+      updateRateUI(item, priceHistory[item]);
   }
-  updateRateUI(item, priceHistory[item]);
 }
 
 function updateRateUI(item, history) {
