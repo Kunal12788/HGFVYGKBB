@@ -179,10 +179,22 @@ function updateRateUI(item, history) {
     priceEl.classList.add(colorClass);
   }
 
-  // Set colors instantly
+  // Generate the static spline and set colors
   if (pathEl && fillEl) {
-    if (trendColor) pathEl.setAttribute("stroke", trendColor);
-    if (trendGradient) fillEl.setAttribute("fill", trendGradient);
+    pathEl.setAttribute("stroke", trendColor);
+    fillEl.setAttribute("fill", trendGradient);
+    
+    // Generate accurate spline paths based on data
+    const dPath = generateSplinePath(history);
+    pathEl.setAttribute("d", dPath);
+    fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
+    
+    // Trigger Recharts-style draw animation
+    pathEl.style.animation = 'none';
+    fillEl.style.animation = 'none';
+    pathEl.offsetHeight; // trigger reflow
+    pathEl.style.animation = 'drawLine 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+    fillEl.style.animation = 'fillFadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
   }
 }
 
@@ -195,42 +207,7 @@ function formatPriceDecimal(value) {
   });
 }
 
-// --- Continuous Fluid Sparkline Animation Loop ---
-let waveTime = 0;
-
-function animateSparklines() {
-    waveTime += 0.05; // Ripple flowing speed
-    
-    monitoredItems.forEach(item => {
-        let history = priceHistory[item];
-        let trend = 'flat';
-        
-        // If no data yet, provide a dummy flatline so the ripple animation can run immediately
-        if (!history || history.length === 0) {
-            history = [{ price: 100 }, { price: 100 }];
-        } else if (history.length > 1) {
-            const currentVal = parseFloat(history[history.length - 1].price);
-            const prevVal = parseFloat(history[history.length - 2].price);
-            if (currentVal > prevVal) trend = 'up';
-            else if (currentVal < prevVal) trend = 'down';
-        }
-        
-        const map = domMap[item];
-        if (!map) return;
-        
-        const pathEl = document.getElementById(map.path);
-        const fillEl = document.getElementById(map.fill);
-        if (!pathEl || !fillEl) return;
-        
-        const dPath = calculateFluidPath(history, waveTime, trend);
-        pathEl.setAttribute("d", dPath);
-        fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
-    });
-    
-    requestAnimationFrame(animateSparklines);
-}
-
-function calculateFluidPath(history, time, trend) {
+function generateSplinePath(history) {
   let dataPoints = history;
   if (dataPoints.length === 1) {
     dataPoints = [history[0], history[0]];
@@ -243,7 +220,7 @@ function calculateFluidPath(history, time, trend) {
 
   const width = 100;
   const height = 30; // Max height for line chart
-  const startY = 30; // Y offset 
+  const startY = 32; // Y offset 
 
   const points = dataPoints.map((point, i) => {
     const p = parseFloat(point.price);
@@ -254,35 +231,18 @@ function calculateFluidPath(history, time, trend) {
     }
     
     const x = i * (width / (dataPoints.length - 1));
-    
-    // Dynamic Wave Logic based on price trend
-    let ripple = 0;
-    if (trend === 'up') {
-        // High energy, fast, large amplitude wave
-        ripple = Math.sin(time * 1.5 + (x * 0.15)) * 4;
-    } else if (trend === 'down') {
-        // Low energy, slow, shallow wave
-        ripple = Math.sin(time * 0.5 + (x * 0.05)) * 1.5;
-    } else {
-        // Flat/Stagnant: Irregular, unpredictable fluid pattern (combining 3 sine waves)
-        ripple = (
-            Math.sin(time + (x * 0.1)) + 
-            Math.sin(time * 1.3 + (x * 0.2)) * 0.6 + 
-            Math.sin(time * 0.7 + (x * 0.05)) * 0.4
-        ) * 1.8;
-    }
-    
-    const y = startY - (normalized * height) + ripple;
+    const y = startY - (normalized * height);
     return { x, y };
   });
 
   let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
   
-  // Create bezier curve control points for smooth fluid lines
+  // Create bezier curve control points for smooth fluid lines (Spline)
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
     const p1 = points[i + 1];
     
+    // 0.4 provides a beautiful, modern smooth curve without sharp zig-zags
     const cp1x = p0.x + (p1.x - p0.x) * 0.4;
     const cp1y = p0.y;
     const cp2x = p0.x + (p1.x - p0.x) * 0.6;
@@ -293,9 +253,6 @@ function calculateFluidPath(history, time, trend) {
   
   return dPath;
 }
-
-// Start the continuous animation loop
-requestAnimationFrame(animateSparklines);
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
