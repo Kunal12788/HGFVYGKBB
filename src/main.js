@@ -150,8 +150,12 @@ function animateSparklines() {
     waveTime += 0.05; // Ripple flowing speed
     
     monitoredItems.forEach(item => {
-        const history = priceHistory[item];
-        if (!history || history.length === 0) return;
+        let history = priceHistory[item];
+        
+        // If no data yet, provide a dummy flatline so the ripple animation can run immediately
+        if (!history || history.length === 0) {
+            history = [{ price: 100 }, { price: 100 }];
+        }
         
         const map = domMap[item];
         if (!map) return;
