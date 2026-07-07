@@ -198,30 +198,59 @@ function drawSparkline(history, pathEl, fillEl) {
 document.addEventListener('DOMContentLoaded', () => {
     const tabGold = document.getElementById('tab-gold');
     const tabSilver = document.getElementById('tab-silver');
+    const tabIndicator = document.getElementById('tab-indicator');
     const goldSection = document.getElementById('gold-section');
     const silverSection = document.getElementById('silver-section');
 
-    if(tabGold && tabSilver && goldSection && silverSection) {
+    if(tabGold && tabSilver && goldSection && silverSection && tabIndicator) {
         tabGold.addEventListener('click', () => {
-            goldSection.classList.remove('hidden');
-            silverSection.classList.add('hidden');
+            tabIndicator.style.transform = 'translateX(0)';
             
-            tabGold.classList.add('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabGold.classList.add('text-white');
             tabGold.classList.remove('text-slate-500');
             
-            tabSilver.classList.remove('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabSilver.classList.remove('text-white');
             tabSilver.classList.add('text-slate-500');
+
+            silverSection.classList.replace('opacity-100', 'opacity-0');
+            silverSection.classList.replace('translate-x-0', 'translate-x-4');
+            
+            setTimeout(() => {
+                silverSection.classList.add('hidden');
+                goldSection.classList.remove('hidden');
+                
+                // Trigger reflow for animation
+                void goldSection.offsetWidth;
+                
+                goldSection.classList.replace('opacity-0', 'opacity-100');
+                goldSection.classList.replace('-translate-x-4', 'translate-x-0');
+                goldSection.classList.replace('translate-x-4', 'translate-x-0'); // Just in case
+            }, 300);
         });
 
         tabSilver.addEventListener('click', () => {
-            silverSection.classList.remove('hidden');
-            goldSection.classList.add('hidden');
+            tabIndicator.style.transform = 'translateX(100%)';
             
-            tabSilver.classList.add('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabSilver.classList.add('text-white');
             tabSilver.classList.remove('text-slate-500');
             
-            tabGold.classList.remove('bg-brand-blue', 'text-white', 'shadow-sm');
+            tabGold.classList.remove('text-white');
             tabGold.classList.add('text-slate-500');
+
+            goldSection.classList.replace('opacity-100', 'opacity-0');
+            goldSection.classList.replace('translate-x-0', '-translate-x-4');
+            
+            setTimeout(() => {
+                goldSection.classList.add('hidden');
+                silverSection.classList.remove('hidden');
+                
+                // Trigger reflow for animation
+                void silverSection.offsetWidth;
+                
+                silverSection.classList.replace('opacity-0', 'opacity-100');
+                silverSection.classList.replace('translate-x-4', 'translate-x-0');
+                silverSection.classList.replace('-translate-x-4', 'translate-x-0'); // Just in case
+            }, 300);
         });
     }
 });
