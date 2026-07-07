@@ -158,7 +158,13 @@ function drawSparkline(history, pathEl, fillEl) {
 
   const points = dataPoints.map((point, i) => {
     const p = parseFloat(point.price);
-    const normalized = (p - minPrice) / range;
+    let normalized;
+    if (maxPrice === minPrice) {
+      // Stagnant prices: inject a gentle wave so it "simply moves" as requested
+      normalized = 0.5 + (Math.sin(i * 1.5) * 0.15);
+    } else {
+      normalized = (p - minPrice) / range;
+    }
     const x = i * (width / (dataPoints.length - 1));
     const y = startY - (normalized * height);
     return { x, y };
