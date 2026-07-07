@@ -105,19 +105,19 @@
         .glass-card {
             background: #eff4fb;
             border-radius: 32px;
-            /* 3D Pop Out effect using thick borders instead of shadows */
-            border-top: 2px solid #ffffff;
-            border-left: 2px solid #ffffff;
-            border-bottom: 6px solid #c5d0e6;
-            border-right: 4px solid #c5d0e6;
-            box-shadow: none !important;
+            /* Neumorphic Dual Shadow Setup */
+            box-shadow: 
+                -6px -6px 16px rgba(255, 255, 255, 1),
+                 6px  6px 16px rgba(174, 188, 214, 0.4) !important;
+            border: none;
             transition: all 0.2s ease-out;
         }
         @media (hover: hover) {
             .glass-card:hover {
-                transform: translate(-2px, -4px);
-                border-bottom: 10px solid #aebcd6;
-                border-right: 6px solid #aebcd6;
+                transform: translateY(-4px);
+                box-shadow: 
+                    -10px -10px 20px rgba(255, 255, 255, 1),
+                     10px  10px 20px rgba(174, 188, 214, 0.5) !important;
             }
         }
 
