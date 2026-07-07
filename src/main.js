@@ -84,22 +84,33 @@ function updateRateUI(item, history) {
   const formattedPrice = formatPriceDecimal(current.price);
   
   // Elements
-  let priceEl, pathEl, fillEl;
+  let priceEl;
   if (item === 'gold_995_100gms') {
     priceEl = document.getElementById('gold-price');
-    pathEl = document.getElementById('gold-sparkline-path');
-    fillEl = document.getElementById('gold-sparkline-fill');
   } else if (item === 'silver_999_1kg') {
     priceEl = document.getElementById('silver-price');
-    pathEl = document.getElementById('silver-sparkline-path');
-    fillEl = document.getElementById('silver-sparkline-fill');
   }
 
-  if (priceEl) priceEl.textContent = '₹' + formattedPrice;
-  
-  // Draw sparkline
-  if (pathEl && fillEl) {
-    drawSparkline(history, pathEl, fillEl);
+  if (priceEl) {
+    priceEl.textContent = '₹' + formattedPrice;
+    
+    // Update color based on price change
+    priceEl.classList.remove('text-primary', 'text-green-500', 'text-red-500');
+    
+    if (history.length > 1) {
+      const currentVal = parseFloat(current.price);
+      const prevVal = parseFloat(history[history.length - 2].price);
+      
+      if (currentVal > prevVal) {
+        priceEl.classList.add('text-green-500');
+      } else if (currentVal < prevVal) {
+        priceEl.classList.add('text-red-500');
+      } else {
+        priceEl.classList.add('text-primary');
+      }
+    } else {
+      priceEl.classList.add('text-primary');
+    }
   }
 }
 
