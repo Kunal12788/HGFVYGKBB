@@ -65,7 +65,7 @@
         </div>
 
         <!-- Purity Grid -->
-        <div class="grid grid-cols-2 gap-3 px-4 mt-4">
+        <div class="grid grid-cols-2 gap-3 px-4 mt-4 flex-1 pb-2">
             <!-- 22K -->
             <div class="bg-white rounded-2xl p-3 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
                 <div class="flex items-center gap-2 mb-1.5">
@@ -98,16 +98,13 @@
                 </div>
                 <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-14k-price">--</span></div>
             </div>
-        </div>
-
-        <!-- 9K (Taller and Narrower) -->
-        <div class="flex justify-center mt-3 px-4 flex-1 pb-2">
-            <div class="bg-white rounded-2xl py-5 px-4 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center items-center w-[65%]">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-slate-900 font-semibold text-[14px]">9K Gold</span>
-                    <span class="bg-brand-light text-brand-blue text-[10px] font-bold px-2 py-0.5 rounded">37.5%</span>
+            <!-- 9K (Horizontally Long via col-span-2) -->
+            <div class="col-span-2 bg-white rounded-2xl p-4 shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-slate-900 font-semibold text-[13px]">9K Gold</span>
+                    <span class="bg-brand-light text-brand-blue text-[9px] font-bold px-1.5 py-0.5 rounded">37.5%</span>
                 </div>
-                <div class="text-[19px] font-bold text-slate-900 tabular-nums">₹<span id="gold-9k-price">--</span></div>
+                <div class="text-[17px] font-bold text-slate-900 tabular-nums">₹<span id="gold-9k-price">--</span></div>
             </div>
         </div>
 
