@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SSR BULLION - Live Spot Rates</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#141b2b",
+                        "primary-fixed": "#dce1ff",
+                        "on-tertiary-fixed-variant": "#454748",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-container-high": "#e1e8fd",
+                        "surface-dim": "#d3daef",
+                        "surface-variant": "#dce2f7",
+                        "on-background": "#141b2b",
+                        "primary-container": "#0057ff",
+                        "outline-variant": "#c3c5d9",
+                        "primary": "#0043c8",
+                        "tertiary-fixed-dim": "#c5c7c8",
+                        "tertiary-container": "#67696a",
+                        "on-primary-container": "#e5e8ff",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#95d3ba",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-container": "#e9edff",
+                        "on-surface-variant": "#434656",
+                        "background": "#f9f9ff",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#293040",
+                        "on-secondary-fixed-variant": "#0b513d",
+                        "on-primary-fixed-variant": "#003ab2",
+                        "surface-container-low": "#f1f3ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#4e5152",
+                        "on-primary-fixed": "#001550",
+                        "surface-container-highest": "#dce2f7",
+                        "on-tertiary-fixed": "#191c1d",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f9f9ff",
+                        "secondary-fixed": "#b0f0d6",
+                        "on-secondary-fixed": "#002117",
+                        "secondary-container": "#adedd3",
+                        "outline": "#737688",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#306d58",
+                        "secondary": "#2b6954",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#e1e3e4",
+                        "surface-tint": "#004ee7",
+                        "on-tertiary-container": "#e8e9ea"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xl": "48px",
+                        "container-margin": "24px",
+                        "lg": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "numeric-data": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "numeric-data": ["20px", { "lineHeight": "1.0", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0px 20px 40px rgba(0,0,0,0.04);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0px 30px 60px rgba(0, 67, 200, 0.1);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .trend-up { color: #0b513d; background: #b0f0d6; }
+        .trend-down { color: #93000a; background: #ffdad6; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+
+        .chart-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .chart-fill {
+            animation: shimmer 4s infinite linear;
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.1; }
+        }
+
+        .press-effect {
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .press-effect:active {
+            transform: scale(0.95);
+        }
+
+        .tab-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen pb-24 md:pb-0 md:pl-[280px]">
+<!-- Shared Components: Navigation Drawer (Desktop) -->
+<nav class="hidden md:flex h-full w-[280px] bg-surface dark:bg-surface-dim border-r border-outline-variant/30 shadow-xl flex-col p-md fixed left-0 top-0 z-40">
+<div class="mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md">JD</div>
+<div>
+<p class="font-body-md text-body-md text-primary dark:text-primary-fixed-dim font-bold">Premium Member</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Verified Institutional Grade</p>
+</div>
+</div>
+<div class="space-y-sm flex-1">
+<a class="press-effect flex items-center gap-md px-md py-3 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Portfolio Analytics</span>
+</a>
+<a class="press-effect flex items-center gap-md px-md py-3 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-body-md text-body-md">Vault Certificates</span>
+</a>
+<a class="press-effect flex items-center gap-md px-md py-3 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-body-md text-body-md">Transaction History</span>
+</a>
+<a class="press-effect flex items-center gap-md px-md py-3 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="font-body-md text-body-md">Security Settings</span>
+</a>
+<a class="press-effect flex items-center gap-md px-md py-3 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</div>
+<div class="mt-auto pt-md border-t border-outline-variant/30">
+<p class="font-label-caps text-label-caps text-on-surface-variant/60">Last Login: Just now</p>
+</div>
+</nav>
+<!-- Shared Components: TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm md:w-[calc(100%-280px)] md:left-[280px]">
+<div class="flex items-center justify-between px-container-margin h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-md">
+<button class="press-effect md:hidden text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-xl text-[24px] tracking-tight text-primary dark:text-primary-fixed-dim font-extrabold uppercase">SSR BULLION</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button class="press-effect w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A macro shot of a sleek silver user profile avatar icon on a soft grey gradient background, clean and professional lighting, high-end UI design element." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPMakP0zskFybHj3LvcVaKtkaQUhVUdxAAT_pxJXyH8F5QjTINi37qTLuLJriunTrZwpdeGXHyQVrF_B2NmOsF0z7DXNQ6QjheYB-4aCBm-Mno0Of_26JGv5kZKI929xu15MeIynCIitoItF9aPAuQW1zM8mmIVK7rHES5fQyyIYc1-hGuI0t0BmF2w-GxQVLlCMVJPW5vEmwTboOoIy8MsBiECyOJn5g8iqAgyBhKa8387V9sMMCe"/>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 px-container-margin max-w-7xl mx-auto space-y-xl">
+<!-- Header & Toggle -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div class="animate-fade-in-up" style="animation-delay: 0.1s;">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Live Spot Rates</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+                    Market Open
+                </p>
+</div>
+<div class="animate-fade-in-up flex bg-surface-container-high rounded-full p-xs border border-outline-variant/30" style="animation-delay: 0.2s;">
+<button class="press-effect tab-transition px-lg py-sm rounded-full bg-surface shadow-sm font-label-caps text-label-caps text-primary">Gold</button>
+<button class="press-effect tab-transition px-lg py-sm rounded-full font-label-caps text-label-caps text-on-surface-variant hover:text-primary">Silver</button>
+</div>
+</div>
+<!-- Hero Card (24K) -->
+<div class="animate-fade-in-up glass-card rounded-xl p-lg relative overflow-hidden" style="animation-delay: 0.3s;">
+<div class="absolute top-0 right-0 p-lg opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[120px] text-primary">diamond</span>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row justify-between gap-xl">
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-md">
+<span class="px-sm py-xs rounded bg-primary-container text-on-primary-container font-label-caps text-[10px]">99.99%</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">24K Fine Gold</h3>
+</div>
+<div class="flex items-baseline gap-sm mb-sm">
+<span id="gold-price" class="font-display-xl text-[64px] text-primary font-bold tracking-tighter">€67.42</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant">/g</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="trend-up flex items-center px-sm py-xs rounded-full font-label-caps text-[12px] gap-xs transition-colors duration-300">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                            +1.2% Today
+                        </span>
+<span class="font-body-md text-sm text-on-surface-variant">High: €67.80 | Low: €66.90</span>
+</div>
+</div>
+<div class="flex-1 h-32 md:h-auto min-h-[120px] bg-surface-container-low rounded-lg border border-outline-variant/30 relative overflow-hidden flex items-end transition-colors duration-300">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<path id="gold-sparkline-fill" class="chart-fill" d="M0 40 L0 30 C10 25, 20 35, 30 20 S50 30, 60 15 S80 25, 100 5 L100 40 Z" fill="url(#grad1)" opacity="0.2"></path>
+<path id="gold-sparkline-path" class="chart-path" d="M0 30 C10 25, 20 35, 30 20 S50 30, 60 15 S80 25, 100 5" fill="none" stroke="#0043c8" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<defs>
+<lineargradient id="grad1" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0043c8" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#0043c8" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</div>
+</div>
+<!-- Secondary Card (Simulation for Stagger) -->
+<div class="animate-fade-in-up glass-card rounded-xl p-lg relative overflow-hidden" style="animation-delay: 0.4s;">
+<div class="absolute top-0 right-0 p-lg opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[120px] text-primary">diamond</span>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row justify-between gap-xl">
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-md">
+<span class="px-sm py-xs rounded bg-surface-container-highest text-on-surface-variant font-label-caps text-[10px]">99.9%</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">999 Fine Silver</h3>
+</div>
+<div class="flex items-baseline gap-sm mb-sm">
+<span id="silver-price" class="font-display-xl text-[64px] text-primary font-bold tracking-tighter">€61.80</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant">/g</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="trend-up flex items-center px-sm py-xs rounded-full font-label-caps text-[12px] gap-xs">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                            +0.8% Today
+                        </span>
+<span class="font-body-md text-sm text-on-surface-variant">High: €62.10 | Low: €61.50</span>
+</div>
+</div>
+<div class="flex-1 h-32 md:h-auto min-h-[120px] bg-surface-container-low rounded-lg border border-outline-variant/30 relative overflow-hidden flex items-end">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<path id="silver-sparkline-fill" class="chart-fill" d="M0 40 L0 30 C10 25, 20 35, 30 20 S50 30, 60 15 S80 25, 100 5 L100 40 Z" fill="url(#grad2)" opacity="0.2"></path>
+<path id="silver-sparkline-path" class="chart-path" d="M0 30 C10 25, 20 35, 30 20 S50 30, 60 15 S80 25, 100 5" fill="none" stroke="#0043c8" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<defs>
+<lineargradient id="grad2" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0043c8" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#0043c8" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared Components: BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface/70 dark:bg-inverse-surface/70 backdrop-blur-2xl z-50 rounded-t-xl border-t border-outline-variant/20 shadow-[0px_-10px_40px_rgba(0,0,0,0.04)]">
+<a class="press-effect flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">show_chart</span>
+<span class="">Markets</span>
+</a>
+<a class="press-effect flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant/60 font-label-caps text-label-caps hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="">The Vault</span>
+</a>
+<a class="press-effect flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant/60 font-label-caps text-label-caps hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="">Intelligence</span>
+</a>
+<a class="press-effect flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant/60 font-label-caps text-label-caps hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="">Secure</span>
+</a>
+</nav>
+
+<script type="module" src="/src/main.js"></script>
+
+<script>
+    // Intersection Observer to re-trigger chart animations when they come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const path = entry.target.querySelector('.chart-path');
+                if (path) {
+                    path.style.animation = 'none';
+                    path.offsetHeight; // trigger reflow
+                    path.style.animation = 'drawLine 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards';
+                }
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.glass-card').forEach(card => observer.observe(card));
+
+    // Simple toggle logic for demo purposes
+    const toggleButtons = document.querySelectorAll('.animate-fade-in-up button');
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleButtons.forEach(b => {
+                b.classList.remove('bg-surface', 'shadow-sm', 'text-primary');
+                b.classList.add('text-on-surface-variant');
+            });
+            btn.classList.add('bg-surface', 'shadow-sm', 'text-primary');
+            btn.classList.remove('text-on-surface-variant');
+        });
+    });
+</script>
+</body></html>
