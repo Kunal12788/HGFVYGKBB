@@ -105,20 +105,22 @@
         .glass-card {
             background: #eff4fb;
             border-radius: 32px;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            border-top: 1px solid rgba(255, 255, 255, 0.8);
-            /* Clean, deep levitating shadow for a thin card */
+            /* 3D Pop Out effect using thick borders instead of shadows */
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-bottom: 6px solid #c5d0e6;
+            border-right: 4px solid #c5d0e6;
             box-shadow: none !important;
-            /* Explicit transitions prevent initial layout shifts/resizing on load */
-            transition: box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.2s ease-out;
         }
         @media (hover: hover) {
             .glass-card:hover {
-                transform: translateY(-8px);
-                box-shadow: none !important;
-                background: #ffffff;
+                transform: translate(-2px, -4px);
+                border-bottom: 10px solid #aebcd6;
+                border-right: 6px solid #aebcd6;
             }
         }
+
         .trend-up { color: #0b513d; background: #b0f0d6; }
         .trend-down { color: #93000a; background: #ffdad6; }
         
