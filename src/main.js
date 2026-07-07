@@ -156,23 +156,29 @@ function drawSparkline(history, pathEl, fillEl) {
   const height = 30; // Max height for line chart
   const startY = 30; // Y offset 
 
-  let dPath = "";
-  const stepX = width / (dataPoints.length - 1);
-
-  dataPoints.forEach((point, i) => {
+  const points = dataPoints.map((point, i) => {
     const p = parseFloat(point.price);
     const normalized = (p - minPrice) / range;
-    
-    // Invert Y axis for SVG (0 is top)
-    const x = (i * stepX).toFixed(1);
-    const y = (startY - (normalized * height)).toFixed(1);
-
-    if (i === 0) {
-      dPath += `M${x} ${y} `;
-    } else {
-      dPath += `L${x} ${y} `; 
-    }
+    const x = i * (width / (dataPoints.length - 1));
+    const y = startY - (normalized * height);
+    return { x, y };
   });
+
+  let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  
+  // Create bezier curve control points
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    
+    // Control points for a smooth curve (horizontal tangent)
+    const cp1x = p0.x + (p1.x - p0.x) * 0.4;
+    const cp1y = p0.y;
+    const cp2x = p0.x + (p1.x - p0.x) * 0.6;
+    const cp2y = p1.y;
+
+    dPath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+  }
 
   if (pathEl) {
     pathEl.setAttribute("d", dPath);
@@ -187,5 +193,46 @@ function drawSparkline(history, pathEl, fillEl) {
     fillEl.setAttribute("d", dFill);
   }
 }
+
+// UI Interaction Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const tabGold = document.getElementById('tab-gold');
+    const tabSilver = document.getElementById('tab-silver');
+    const tabIndicator = document.getElementById('tab-indicator');
+    const goldSection = document.getElementById('gold-section');
+    const silverSection = document.getElementById('silver-section');
+
+    if(tabGold && tabSilver) {
+        tabGold.addEventListener('click', () => {
+            tabIndicator.style.transform = 'translateX(0)';
+            tabGold.classList.add('text-white');
+            tabGold.classList.remove('text-on-surface');
+            tabSilver.classList.remove('text-white');
+            tabSilver.classList.add('text-on-surface');
+            
+            silverSection.classList.add('opacity-0');
+            setTimeout(() => {
+                silverSection.classList.add('hidden');
+                goldSection.classList.remove('hidden');
+                setTimeout(() => goldSection.classList.remove('opacity-0'), 50);
+            }, 300);
+        });
+
+        tabSilver.addEventListener('click', () => {
+            tabIndicator.style.transform = 'translateX(100%)';
+            tabSilver.classList.add('text-white');
+            tabSilver.classList.remove('text-on-surface');
+            tabGold.classList.remove('text-white');
+            tabGold.classList.add('text-on-surface');
+
+            goldSection.classList.add('opacity-0');
+            setTimeout(() => {
+                goldSection.classList.add('hidden');
+                silverSection.classList.remove('hidden');
+                setTimeout(() => silverSection.classList.remove('opacity-0'), 50);
+            }, 300);
+        });
+    }
+});
 
 initSupabase();

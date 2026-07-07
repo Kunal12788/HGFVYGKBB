@@ -206,25 +206,23 @@
 </nav>
 <!-- Shared Components: TopAppBar -->
 <header class="fixed top-0 w-full z-50 md:w-[calc(100%-280px)] md:left-[280px] bg-white shadow-sm border-b border-outline-variant/20">
-<div class="flex items-center justify-between px-container-margin h-20 w-full max-w-7xl mx-auto relative">
-<div class="flex items-center gap-md">
-<button class="press-effect md:hidden text-primary hover:opacity-80 transition-opacity">
-<span class="material-symbols-outlined">menu</span>
-</button>
-</div>
-<!-- Absolute Centered Brand Name with Premium Styling -->
-<div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 mt-2">
-<h1 class="font-display-xl text-[32px] md:text-[44px] whitespace-nowrap tracking-[0.05em] text-primary font-extrabold uppercase drop-shadow-sm">SSR BULLION</h1>
-</div>
-<div class="flex items-center gap-sm">
-<button class="press-effect w-10 h-10 rounded-full overflow-hidden border-2 border-outline-variant/30 transition-transform shadow-sm">
-<img class="w-full h-full object-cover" data-alt="A macro shot of a sleek silver user profile avatar icon on a soft grey gradient background, clean and professional lighting, high-end UI design element." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPMakP0zskFybHj3LvcVaKtkaQUhVUdxAAT_pxJXyH8F5QjTINi37qTLuLJriunTrZwpdeGXHyQVrF_B2NmOsF0z7DXNQ6QjheYB-4aCBm-Mno0Of_26JGv5kZKI929xu15MeIynCIitoItF9aPAuQW1zM8mmIVK7rHES5fQyyIYc1-hGuI0t0BmF2w-GxQVLlCMVJPW5vEmwTboOoIy8MsBiECyOJn5g8iqAgyBhKa8387V9sMMCe"/>
-</button>
-</div>
+<div class="flex items-center justify-center px-container-margin h-20 w-full max-w-7xl mx-auto relative">
+<h1 class="font-display-xl text-[24px] md:text-[32px] text-primary tracking-tight font-black uppercase drop-shadow-sm">SSR BULLION</h1>
 </div>
 </header>
 <!-- Main Canvas -->
-<main class="pt-28 px-container-margin max-w-7xl mx-auto space-y-4">
+<main class="pt-28 px-container-margin max-w-7xl mx-auto pb-6">
+
+<!-- Category Toggle -->
+<div class="flex justify-center mb-6">
+  <div class="flex items-center bg-surface-container rounded-full p-1 shadow-sm border border-outline-variant/20 relative">
+    <div id="tab-indicator" class="absolute w-1/2 h-[calc(100%-8px)] top-1 left-1 bg-primary rounded-full shadow-sm transition-all duration-300"></div>
+    <button id="tab-gold" class="px-8 py-2 rounded-full text-[14px] font-bold text-white relative z-10 transition-colors duration-300 w-32">Gold</button>
+    <button id="tab-silver" class="px-8 py-2 rounded-full text-[14px] font-medium text-on-surface relative z-10 transition-colors duration-300 w-32">Silver</button>
+  </div>
+</div>
+
+<div id="gold-section" class="space-y-4 w-full transition-opacity duration-300 opacity-100">
 <!-- Hero Card (24K) -->
 <div class="animate-fade-in-up glass-card p-5 relative overflow-hidden" style="animation-delay: 0.1s;">
 <div class="absolute top-0 right-0 p-5 opacity-10 pointer-events-none"><span class="material-symbols-outlined text-[100px] text-primary">diamond</span></div>
@@ -235,7 +233,7 @@
 <div class="flex items-center justify-center gap-2"><span class="trend-up flex items-center px-2 py-1 rounded-full font-label-caps text-[10px] gap-1 transition-colors duration-300"><span class="material-symbols-outlined text-[12px]">trending_up</span>Live Update</span></div>
 </div>
 </div>
-<div class="h-12 w-full mt-3"><svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><defs><linearGradient id="primary-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#004ee7" stop-opacity="0.2"/><stop offset="100%" stop-color="#004ee7" stop-opacity="0"/></linearGradient></defs><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg></div>
+<div class="h-12 w-full mt-3"><svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><defs><linearGradient id="primary-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#004ee7" stop-opacity="0.2"/><stop offset="100%" stop-color="#004ee7" stop-opacity="0"/></linearGradient><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg></div>
 </div>
 
 <!-- Secondary Purities: Premium Dashboard Grid -->
@@ -253,7 +251,7 @@
             </div>
         </div>
         <div class="absolute right-0 bottom-0 w-3/5 h-full opacity-70 pointer-events-none">
-            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-22k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-22k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-22k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-22k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg>
         </div>
     </div>
 
@@ -269,7 +267,7 @@
             </div>
         </div>
         <div class="absolute right-0 bottom-0 w-3/5 h-full opacity-70 pointer-events-none">
-            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-20k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-20k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-20k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-20k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg>
         </div>
     </div>
 </div>
@@ -288,7 +286,7 @@
             </div>
         </div>
         <div class="absolute right-0 bottom-0 w-3/5 h-full opacity-70 pointer-events-none">
-            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-18k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-18k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-18k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-18k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg>
         </div>
     </div>
 
@@ -304,7 +302,7 @@
             </div>
         </div>
         <div class="absolute right-0 bottom-0 w-3/5 h-full opacity-70 pointer-events-none">
-            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-14k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-14k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-14k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-14k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg>
         </div>
     </div>
 </div>
@@ -324,24 +322,28 @@
             </div>
             
             <div class="absolute right-0 bottom-0 w-3/5 h-full opacity-60 pointer-events-none">
-                <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-9k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-9k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+                <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="gold-9k-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="gold-9k-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow)"></path></svg>
             </div>
         </div>
     </div>
 </div>
+</div>
 
+<div id="silver-section" class="space-y-4 w-full transition-opacity duration-300 hidden opacity-0">
 <!-- Silver Card -->
-<div class="animate-fade-in-up glass-card p-5 relative overflow-hidden mt-8" style="animation-delay: 0.7s;">
-<div class="absolute top-0 right-0 p-5 opacity-10 pointer-events-none"><span class="material-symbols-outlined text-[100px] text-primary">diamond</span></div>
+<div class="animate-fade-in-up glass-card p-5 relative overflow-hidden" style="animation-delay: 0.1s;">
+<div class="absolute top-0 right-0 p-5 opacity-10 pointer-events-none"><span class="material-symbols-outlined text-[100px] text-slate-400">diamond</span></div>
 <div class="relative z-10 flex flex-col items-center text-center justify-center">
 <div>
 <div class="flex items-center justify-center gap-2 mb-2"><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-caps text-[10px]">99.9%</span><h3 class="font-headline-md text-[20px] text-on-surface">999 Fine Silver</h3></div>
-<div class="flex items-baseline justify-center gap-2 mb-2 whitespace-nowrap"><span id="silver-price" class="font-price price-shadow text-[40px] md:text-[52px] text-primary font-black">₹--,---.--</span><span class="font-body-lg text-body-lg text-on-surface-variant font-medium">/1kg</span></div>
+<div class="flex items-baseline justify-center gap-2 mb-2 whitespace-nowrap"><span id="silver-price" class="font-price price-shadow text-[40px] md:text-[52px] text-slate-700 font-black">₹--,---.--</span><span class="font-body-lg text-body-lg text-on-surface-variant font-medium">/1kg</span></div>
 <div class="flex items-center justify-center gap-2"><span class="trend-up flex items-center px-2 py-1 rounded-full font-label-caps text-[10px] gap-1 transition-colors duration-300"><span class="material-symbols-outlined text-[12px]">trending_up</span>Live Update</span></div>
 </div>
 </div>
-<div class="h-12 w-full mt-3"><svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><path class="chart-fill" d="" fill="url(#primary-gradient)" id="silver-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="silver-sparkline-path" stroke="#004ee7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg></div>
+<div class="h-12 w-full mt-3"><svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40"><defs><linearGradient id="silver-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#94a3b8" stop-opacity="0.3"/><stop offset="100%" stop-color="#94a3b8" stop-opacity="0"/></linearGradient><filter id="glow-silver" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs><path class="chart-fill" d="" fill="url(#silver-gradient)" id="silver-sparkline-fill" stroke="none"></path><path class="chart-path" d="" fill="none" id="silver-sparkline-path" stroke="#64748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" filter="url(#glow-silver)"></path></svg></div>
 </div>
+</div>
+
 </main>
 <!-- Shared Components: BottomNavBar (Mobile) -->
 <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-inverse-surface z-50 rounded-[32px] border border-outline-variant/30 shadow-[0px_8px_32px_rgba(0,0,0,0.12)]">
