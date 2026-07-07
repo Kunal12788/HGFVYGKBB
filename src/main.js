@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // --- SUPABASE CONFIGURATION ---
@@ -7,10 +6,30 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let supabaseClient = null;
 
-// Price History Cache for Sparklines (max 10 points)
-let priceHistory = {
-  gold_995_100gms: [],
-  silver_999_1kg: []
+// Track all our monitored items
+const monitoredItems = [
+    'gold_995_100gms',
+    'gold_22k',
+    'gold_20k',
+    'gold_18k',
+    'gold_14k',
+    'gold_9k',
+    'silver_999_1kg'
+];
+
+// Price History Cache for Sparklines (max 10 points per item)
+let priceHistory = {};
+monitoredItems.forEach(item => priceHistory[item] = []);
+
+// DOM ID Map for quick lookups
+const domMap = {
+    'gold_995_100gms': { price: 'gold-price', path: 'gold-sparkline-path', fill: 'gold-sparkline-fill' },
+    'gold_22k': { price: 'gold-22k-price', path: 'gold-22k-sparkline-path', fill: 'gold-22k-sparkline-fill' },
+    'gold_20k': { price: 'gold-20k-price', path: 'gold-20k-sparkline-path', fill: 'gold-20k-sparkline-fill' },
+    'gold_18k': { price: 'gold-18k-price', path: 'gold-18k-sparkline-path', fill: 'gold-18k-sparkline-fill' },
+    'gold_14k': { price: 'gold-14k-price', path: 'gold-14k-sparkline-path', fill: 'gold-14k-sparkline-fill' },
+    'gold_9k':  { price: 'gold-9k-price', path: 'gold-9k-sparkline-path', fill: 'gold-9k-sparkline-fill' },
+    'silver_999_1kg':  { price: 'silver-price', path: 'silver-sparkline-path', fill: 'silver-sparkline-fill' }
 };
 
 // Initialize Supabase Connection
@@ -29,31 +48,25 @@ async function startApp() {
 }
 
 async function fetchLatestPrices() {
-  // Fetch Gold
-  const { data: goldData, error: goldErr } = await supabaseClient
-    .from('bullion_rates')
-    .select('*')
-    .eq('item', 'gold_995_100gms')
-    .order('created_at', { ascending: false })
-    .limit(10);
-    
-  if (!goldErr && goldData && goldData.length > 0) {
-    priceHistory.gold_995_100gms = goldData.reverse();
-    updateRateUI('gold_995_100gms', priceHistory.gold_995_100gms);
-  }
+  // Fetch latest 10 rows for all items simultaneously for performance
+  const promises = monitoredItems.map(item => {
+      return supabaseClient
+        .from('bullion_rates')
+        .select('*')
+        .eq('item', item)
+        .order('created_at', { ascending: false })
+        .limit(10);
+  });
 
-  // Fetch Silver
-  const { data: silverData, error: silverErr } = await supabaseClient
-    .from('bullion_rates')
-    .select('*')
-    .eq('item', 'silver_999_1kg')
-    .order('created_at', { ascending: false })
-    .limit(10);
-    
-  if (!silverErr && silverData && silverData.length > 0) {
-    priceHistory.silver_999_1kg = silverData.reverse();
-    updateRateUI('silver_999_1kg', priceHistory.silver_999_1kg);
-  }
+  const results = await Promise.all(promises);
+
+  results.forEach((res, index) => {
+      const item = monitoredItems[index];
+      if (!res.error && res.data && res.data.length > 0) {
+          priceHistory[item] = res.data.reverse();
+          updateRateUI(item, priceHistory[item]);
+      }
+  });
 }
 
 function subscribeToRealtime() {
@@ -67,11 +80,11 @@ function subscribeToRealtime() {
 
 function handleNewRate(record) {
   const item = record.item;
-  if (!priceHistory[item]) return;
+  if (!priceHistory[item]) return; // ignore unmonitored items
   
   priceHistory[item].push(record);
   if (priceHistory[item].length > 10) {
-    priceHistory[item].shift(); // Keep only 10 points
+    priceHistory[item].shift(); // Keep only max 10 points
   }
   updateRateUI(item, priceHistory[item]);
 }
@@ -80,16 +93,14 @@ function updateRateUI(item, history) {
   if (history.length === 0) return;
   const current = history[history.length - 1];
   
-  // Format price
   const formattedPrice = formatPriceDecimal(current.price);
   
-  // Elements
-  let priceEl;
-  if (item === 'gold_995_100gms') {
-    priceEl = document.getElementById('gold-price');
-  } else if (item === 'silver_999_1kg') {
-    priceEl = document.getElementById('silver-price');
-  }
+  const map = domMap[item];
+  if (!map) return;
+
+  const priceEl = document.getElementById(map.price);
+  const pathEl = document.getElementById(map.path);
+  const fillEl = document.getElementById(map.fill);
 
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
@@ -112,6 +123,11 @@ function updateRateUI(item, history) {
       priceEl.classList.add('text-primary');
     }
   }
+
+  // Draw sparkline
+  if (pathEl && fillEl) {
+    drawSparkline(history, pathEl, fillEl);
+  }
 }
 
 function formatPriceDecimal(value) {
@@ -126,7 +142,6 @@ function formatPriceDecimal(value) {
 function drawSparkline(history, pathEl, fillEl) {
   if (!history || history.length === 0) return;
 
-  // If only one point, draw flat line
   let dataPoints = history;
   if (dataPoints.length === 1) {
     dataPoints = [history[0], history[0]];
@@ -155,13 +170,10 @@ function drawSparkline(history, pathEl, fillEl) {
     if (i === 0) {
       dPath += `M${x} ${y} `;
     } else {
-      // Create a smooth curve approximation (or simple line)
       dPath += `L${x} ${y} `; 
     }
   });
 
-  // Smooth out line visually with simple L for now (to avoid complex bezier calculations on edge cases)
-  
   if (pathEl) {
     pathEl.setAttribute("d", dPath);
     // Retrigger animation
