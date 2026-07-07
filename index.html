@@ -48,30 +48,30 @@
         <div id="gold-section" class="flex-1 flex flex-col w-full transition-all duration-300 ease-out transform translate-x-0 opacity-100 h-full overflow-hidden">
             
             <!-- 24K Gold Main Card -->
-            <div class="px-4 mt-3 flex-[0.9] flex flex-col min-h-[110px]">
-                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-end relative px-5 pb-7 pt-12 overflow-hidden">
+            <div class="px-4 mt-3 flex-[0.8] flex flex-col min-h-[140px]">
+                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-center items-center relative px-4 py-3 overflow-hidden">
                     
-                    <!-- Top Center: Purity and Title shifted upside -->
-                    <div class="absolute top-3.5 left-0 w-full flex justify-center items-center gap-2 pr-[80px] pl-[10px] z-10">
-                        <span class="bg-brand-light text-brand-blue text-[12px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
-                        <span class="text-brand-blue text-[19px] font-extrabold whitespace-nowrap drop-shadow-sm">24K Fine Gold</span>
+                    <!-- Top: Purity and Title -->
+                    <div class="flex justify-center items-center gap-2 mb-2.5 z-10 w-full">
+                        <span class="bg-brand-light text-brand-blue text-[11px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
+                        <span class="text-brand-blue text-[18px] font-extrabold whitespace-nowrap drop-shadow-sm">24K Fine Gold</span>
                     </div>
 
-                    <!-- Image floating on top right (Size Increased) -->
-                    <div class="absolute top-1.5 right-2 w-[85px] h-[85px] rounded-full overflow-hidden shadow-sm border-2 border-brand-light z-20">
+                    <!-- Middle: Gold Bar Image -->
+                    <div class="w-[60px] h-[60px] rounded-full overflow-hidden shadow-sm border-2 border-brand-light z-20 mb-1.5 shrink-0">
                         <img src="/gold-bar-icon.jpg" alt="Gold Bar" class="w-full h-full object-cover">
                     </div>
 
-                    <!-- Left Side: Price Content (Shifted upwards by removing top margin and increasing container bottom padding) -->
-                    <div class="flex items-baseline gap-1 relative z-10 w-[75%]">
-                        <span id="gold-price" class="text-brand-blue text-[44px] font-bold tracking-tight tabular-nums leading-none">--</span>
+                    <!-- Bottom: Price Content Centered -->
+                    <div class="flex items-baseline justify-center gap-1 relative z-10 w-full">
+                        <span id="gold-price" class="text-brand-blue text-[40px] font-bold tracking-tight tabular-nums leading-none">--</span>
                         <span class="text-[12px] font-semibold text-slate-500">/10g</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Purity Grid (Increased flex ratio) -->
-            <div class="grid grid-cols-2 gap-2 px-4 mt-3 flex-[1.1] pb-[100px]">
+            <!-- Purity Grid (Increased flex ratio to balance the smaller main card) -->
+            <div class="grid grid-cols-2 gap-2 px-4 mt-3 flex-[1.2] pb-[100px]">
                 <!-- 22K -->
                 <div class="bg-white rounded-2xl shadow-[0_3px_15px_rgba(0,0,0,0.03)] flex flex-col justify-center p-2.5">
                     <div class="flex items-center gap-1.5 mb-1">
@@ -118,7 +118,7 @@
         <!-- SILVER SECTION -->
         <div id="silver-section" class="hidden absolute inset-0 pt-[74px] flex flex-col w-full transition-all duration-300 ease-out transform translate-x-4 opacity-0 h-full overflow-hidden">
             <!-- 999 Silver Main Card -->
-            <div class="px-4 mt-3 flex-[0.9] flex flex-col min-h-[110px]">
+            <div class="px-4 mt-3 flex-[0.8] flex flex-col min-h-[140px]">
                 <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-center items-center relative py-2">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">99.9%</span>
@@ -131,7 +131,7 @@
                 </div>
             </div>
             <!-- Filler with exact pb-[100px] gap for bottom nav -->
-            <div class="flex-[1.1] pb-[100px]"></div>
+            <div class="flex-[1.2] pb-[100px]"></div>
         </div>
 
     </div>
