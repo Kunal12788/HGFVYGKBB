@@ -151,10 +151,16 @@ function animateSparklines() {
     
     monitoredItems.forEach(item => {
         let history = priceHistory[item];
+        let trend = 'flat';
         
         // If no data yet, provide a dummy flatline so the ripple animation can run immediately
         if (!history || history.length === 0) {
             history = [{ price: 100 }, { price: 100 }];
+        } else if (history.length > 1) {
+            const currentVal = parseFloat(history[history.length - 1].price);
+            const prevVal = parseFloat(history[history.length - 2].price);
+            if (currentVal > prevVal) trend = 'up';
+            else if (currentVal < prevVal) trend = 'down';
         }
         
         const map = domMap[item];
@@ -164,7 +170,7 @@ function animateSparklines() {
         const fillEl = document.getElementById(map.fill);
         if (!pathEl || !fillEl) return;
         
-        const dPath = calculateFluidPath(history, waveTime);
+        const dPath = calculateFluidPath(history, waveTime, trend);
         pathEl.setAttribute("d", dPath);
         fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
     });
@@ -172,7 +178,7 @@ function animateSparklines() {
     requestAnimationFrame(animateSparklines);
 }
 
-function calculateFluidPath(history, time) {
+function calculateFluidPath(history, time, trend) {
   let dataPoints = history;
   if (dataPoints.length === 1) {
     dataPoints = [history[0], history[0]];
@@ -196,8 +202,23 @@ function calculateFluidPath(history, time) {
     }
     
     const x = i * (width / (dataPoints.length - 1));
-    // The Magic: Add a continuous flowing sine ripple on top of the real data Y
-    const ripple = Math.sin(time + (x * 0.1)) * 2; 
+    
+    // Dynamic Wave Logic based on price trend
+    let ripple = 0;
+    if (trend === 'up') {
+        // High energy, fast, large amplitude wave
+        ripple = Math.sin(time * 1.5 + (x * 0.15)) * 4;
+    } else if (trend === 'down') {
+        // Low energy, slow, shallow wave
+        ripple = Math.sin(time * 0.5 + (x * 0.05)) * 1.5;
+    } else {
+        // Flat/Stagnant: Irregular, unpredictable fluid pattern (combining 3 sine waves)
+        ripple = (
+            Math.sin(time + (x * 0.1)) + 
+            Math.sin(time * 1.3 + (x * 0.2)) * 0.6 + 
+            Math.sin(time * 0.7 + (x * 0.05)) * 0.4
+        ) * 1.8;
+    }
     
     const y = startY - (normalized * height) + ripple;
     return { x, y };
