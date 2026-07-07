@@ -49,23 +49,23 @@
             
             <!-- 24K Gold Main Card -->
             <div class="px-4 mt-3 flex-[0.9] flex flex-col min-h-[110px]">
-                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex items-center justify-between px-5 py-4 relative overflow-hidden">
+                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-end relative px-5 py-4 overflow-hidden">
                     
-                    <!-- Left Side: Text Content -->
-                    <div class="flex flex-col relative z-10 flex-1 pr-2">
-                        <div class="flex items-center gap-1.5 mb-1.5">
-                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
-                            <span class="text-slate-800 text-[15px] font-medium whitespace-nowrap overflow-hidden text-ellipsis">24K Fine Gold</span>
-                        </div>
-                        <div class="flex items-baseline gap-1">
-                            <span id="gold-price" class="text-brand-blue text-[42px] font-bold tracking-tight tabular-nums leading-none">--</span>
-                            <span class="text-[12px] font-semibold text-slate-500">/10g</span>
-                        </div>
+                    <!-- Image floating on top right, overlapping safely over empty space -->
+                    <div class="absolute top-2 right-3 w-[70px] h-[70px] rounded-full overflow-hidden shadow-sm border-2 border-brand-light z-20">
+                        <img src="/gold-bar-icon.jpg" alt="Gold Bar" class="w-full h-full object-cover">
                     </div>
 
-                    <!-- Right Side: Gold Bar Image (Increased size) -->
-                    <div class="w-[75px] h-[75px] shrink-0 rounded-full overflow-hidden shadow-sm border-2 border-slate-50 relative z-10">
-                        <img src="/gold-bar-icon.jpg" alt="Gold Bar" class="w-full h-full object-cover">
+                    <!-- Left Side: Text Content restricted to 70% width to prevent collision -->
+                    <div class="flex flex-col relative z-10 w-[75%] pt-2">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
+                            <span class="text-slate-800 text-[15px] font-medium whitespace-nowrap">24K Fine Gold</span>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="gold-price" class="text-brand-blue text-[44px] font-bold tracking-tight tabular-nums leading-none">--</span>
+                            <span class="text-[12px] font-semibold text-slate-500">/10g</span>
+                        </div>
                     </div>
                 </div>
             </div>
