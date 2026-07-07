@@ -112,13 +112,15 @@
             transform: translateY(0);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .glass-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 
-                0px 32px 64px -16px rgba(0, 30, 80, 0.3),
-                0px 16px 32px -8px rgba(0, 30, 80, 0.2),
-                0px 8px 16px -4px rgba(0, 30, 80, 0.15);
-            background: #ffffff;
+        @media (hover: hover) {
+            .glass-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 
+                    0px 32px 64px -16px rgba(0, 30, 80, 0.3),
+                    0px 16px 32px -8px rgba(0, 30, 80, 0.2),
+                    0px 8px 16px -4px rgba(0, 30, 80, 0.15);
+                background: #ffffff;
+            }
         }
         .trend-up { color: #0b513d; background: #b0f0d6; }
         .trend-down { color: #93000a; background: #ffdad6; }
@@ -152,10 +154,10 @@
         }
 
         .press-effect {
-            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.2s ease;
         }
         .press-effect:active {
-            transform: scale(0.95);
+            opacity: 0.7;
         }
 
         .tab-transition {
