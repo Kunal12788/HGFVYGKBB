@@ -173,8 +173,9 @@ function updateRateUI(item, history) {
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
     
-    // Dynamic text color for 24K Gold card
-    if (item === 'gold_995_100gms' && history.length > 1) {
+    // Dynamic text color for main cards
+    const dynamicCards = ['gold_995_100gms', 'silver_999_1kg', 'silver_999_3kg'];
+    if (dynamicCards.includes(item) && history.length > 1) {
         const currentVal = parseFloat(current.price);
         const prevVal = parseFloat(history[history.length - 2].price);
         
