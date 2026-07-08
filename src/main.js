@@ -171,9 +171,7 @@ function updateRateUI(item, history) {
     }
   }
   
-  if (['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'].includes(item)) {
-    updateJaggedGraph(item, history);
-  }
+
 }
 
 function formatPriceDecimal(value) {
@@ -185,113 +183,7 @@ function formatPriceDecimal(value) {
   });
 }
 
-const graphState = {};
 
-function updateJaggedGraph(item, history) {
-  let dataPoints = history;
-  if (!dataPoints || dataPoints.length === 0) {
-      dataPoints = [{price: 100}, {price: 100}];
-  } else if (dataPoints.length === 1) {
-      dataPoints = [history[0], history[0]];
-  } else {
-      // Use up to the last 15 data points for a detailed sparkline
-      dataPoints = history.slice(-15);
-  }
-
-  const map = domMap[item];
-  if (!map) return;
-  
-  const pathEl = document.getElementById(`${item.replace('_', '-')}-sparkline-path`);
-  const fillEl = document.getElementById(`${item.replace('_', '-')}-sparkline-fill`);
-  const dotEl = document.getElementById(`${item.replace('_', '-')}-sparkline-dot`);
-  if (!pathEl || !fillEl || !dotEl) return;
-
-  const prices = dataPoints.map(r => parseFloat(r.price));
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-  const range = maxPrice - minPrice || 1; 
-  const isStagnant = (maxPrice === minPrice);
-
-  const points = dataPoints.map((point, i) => {
-    const p = parseFloat(point.price);
-    let normalized = (p - minPrice) / range;
-    if (isStagnant) normalized = 0.5;
-    
-    // x goes from 0 to 100
-    const x = i * (100 / (dataPoints.length - 1));
-    // y goes from 90 (bottom) to 40 (top) to keep it in the bottom half of viewBox 100 100
-    const y = 90 - (normalized * 50);
-    return { x, y };
-  });
-
-  let trendColor = '#eab308'; // Default Gold
-  let trendGradient = 'url(#gradient-flat)';
-  let trendOffset = 0; // Default vertical shift
-  
-  if (history.length > 1) {
-      const currentVal = parseFloat(history[history.length - 1].price);
-      const prevVal = parseFloat(history[history.length - 2].price);
-      if (currentVal > prevVal) {
-          trendColor = '#22c55e'; // Green
-          trendGradient = 'url(#gradient-up)';
-          trendOffset = -15; // Shift higher up the card
-      } else if (currentVal < prevVal) {
-          trendColor = '#ef4444'; // Red
-          trendGradient = 'url(#gradient-down)';
-          trendOffset = 15; // Shift lower down the card
-      }
-  }
-
-  // Save math to state for the continuous animation loop to consume
-  graphState[item] = { points, trendColor, trendGradient, trendOffset };
-}
-
-// Continuous Subtle Animation Loop
-let waveTime = 0;
-function animateJaggedGraphs() {
-    waveTime += 0.03; 
-    
-    ['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'].forEach(item => {
-        const state = graphState[item];
-        if (!state) return;
-        
-        const pathEl = document.getElementById(`${item.replace('_', '-')}-sparkline-path`);
-        const fillEl = document.getElementById(`${item.replace('_', '-')}-sparkline-fill`);
-        const dotEl = document.getElementById(`${item.replace('_', '-')}-sparkline-dot`);
-        if (!pathEl || !fillEl || !dotEl) return;
-        
-        // Continuous breathing effect applied to Y coordinates
-        const breathe = Math.sin(waveTime) * 1.5; 
-        
-        const currentPoints = state.points.map(p => ({
-            x: p.x,
-            y: p.y + state.trendOffset + breathe 
-        }));
-        
-        let dPath = `M ${currentPoints[0].x.toFixed(1)} ${currentPoints[0].y.toFixed(1)}`;
-        for (let i = 1; i < currentPoints.length; i++) {
-            dPath += ` L ${currentPoints[i].x.toFixed(1)} ${currentPoints[i].y.toFixed(1)}`;
-        }
-        
-        // Fill path extended safely to bottom of 100px viewBox
-        const fillPath = `${dPath} L 100 100 L 0 100 Z`;
-        
-        pathEl.setAttribute('d', dPath);
-        pathEl.setAttribute('stroke', state.trendColor);
-        pathEl.style.filter = `drop-shadow(0px 1px 3px ${state.trendColor})`;
-
-        fillEl.setAttribute('d', fillPath);
-        fillEl.setAttribute('fill', state.trendGradient);
-
-        const lastPoint = currentPoints[currentPoints.length - 1];
-        dotEl.setAttribute('cx', lastPoint.x.toFixed(1));
-        dotEl.setAttribute('cy', lastPoint.y.toFixed(1));
-        dotEl.setAttribute('fill', state.trendColor);
-        dotEl.style.filter = `drop-shadow(0px 1px 4px ${state.trendColor})`;
-    });
-    
-    requestAnimationFrame(animateJaggedGraphs);
-}
 
 // UI Interaction Logic
 // (Code executes directly because type="module" is deferred and DOM is ready)
@@ -321,7 +213,7 @@ function animateJaggedGraphs() {
       }, 5200);
   }
 
-  requestAnimationFrame(animateJaggedGraphs);
+
     const tabGold = document.getElementById('tab-gold');
     const tabSilver = document.getElementById('tab-silver');
     const tabIndicator = document.getElementById('tab-indicator');
