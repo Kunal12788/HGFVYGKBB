@@ -310,25 +310,25 @@ document.addEventListener('DOMContentLoaded', () => {
       splashGreeting.textContent = greeting;
 
       // Sequence Timers
-      // At 1.5s: Fade out Screen 1, Fade in Screen 2
+      // At 2.5s: Fade out Screen 1, Fade in Screen 2
       setTimeout(() => {
           splash1.classList.remove('opacity-100', 'scale-100');
           splash1.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
           
           splash2.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
           splash2.classList.add('opacity-100', 'scale-100');
-      }, 1500);
+      }, 2500);
 
-      // At 3.5s: Fade out entire overlay
+      // At 5.5s: Fade out entire overlay
       setTimeout(() => {
           splashOverlay.classList.remove('opacity-100');
           splashOverlay.classList.add('opacity-0', 'pointer-events-none');
-      }, 3500);
+      }, 5500);
 
-      // At 4.5s: Remove overlay from DOM entirely to free memory
+      // At 6.5s: Remove overlay from DOM entirely to free memory
       setTimeout(() => {
           splashOverlay.remove();
-      }, 4500);
+      }, 6500);
   }
 
   fetchInitialRates();
