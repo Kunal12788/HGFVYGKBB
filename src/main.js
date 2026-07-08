@@ -294,7 +294,7 @@ function animateJaggedGraphs() {
 }
 
 // UI Interaction Logic
-document.addEventListener('DOMContentLoaded', () => {
+// (Code executes directly because type="module" is deferred and DOM is ready)
   // Handle Splash Sequence
   const splashOverlay = document.getElementById('splash-overlay');
   const splashGreeting = document.getElementById('splash-greeting');
@@ -437,6 +437,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         });
     }
-});
 
 initSupabase();
