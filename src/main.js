@@ -23,13 +23,13 @@ monitoredItems.forEach(item => priceHistory[item] = []);
 
 // DOM ID Map for quick lookups
 const domMap = {
-    'gold_995_100gms': { price: 'gold-price', path: 'gold-sparkline-path', fill: 'gold-sparkline-fill' },
-    'gold_22k': { price: 'gold-22k-price', path: 'gold-22k-sparkline-path', fill: 'gold-22k-sparkline-fill' },
-    'gold_20k': { price: 'gold-20k-price', path: 'gold-20k-sparkline-path', fill: 'gold-20k-sparkline-fill' },
-    'gold_18k': { price: 'gold-18k-price', path: 'gold-18k-sparkline-path', fill: 'gold-18k-sparkline-fill' },
-    'gold_14k': { price: 'gold-14k-price', path: 'gold-14k-sparkline-path', fill: 'gold-14k-sparkline-fill' },
-    'gold_9k':  { price: 'gold-9k-price', path: 'gold-9k-sparkline-path', fill: 'gold-9k-sparkline-fill' },
-    'silver_999_1kg':  { price: 'silver-price', path: 'silver-sparkline-path', fill: 'silver-sparkline-fill' }
+    'gold_995_100gms': { price: 'gold-price' },
+    'gold_22k': { price: 'gold-22k-price' },
+    'gold_20k': { price: 'gold-20k-price' },
+    'gold_18k': { price: 'gold-18k-price' },
+    'gold_14k': { price: 'gold-14k-price' },
+    'gold_9k':  { price: 'gold-9k-price' },
+    'silver_999_1kg':  { price: 'silver-price' }
 };
 
 // Initialize Supabase Connection
