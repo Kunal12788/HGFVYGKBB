@@ -103,17 +103,15 @@ async function fetchLatestPrices() {
                   updateRateUI(derived.id, priceHistory[derived.id]);
               });
           }
-      } else if (item === 'silver_999_1kg' && !res.error && res.data && res.data.length > 0) {
-          const fetchedHistory = res.data.reverse();
-          priceHistory[item] = fetchedHistory;
-          updateRateUI(item, priceHistory[item]);
-
-          // Instantly generate 3KG silver history
-          const derivedId = 'silver_999_3kg';
-          priceHistory[derivedId] = fetchedHistory.map(row => {
-              return { ...row, item: derivedId, price: row.price + 200 };
-          });
-          updateRateUI(derivedId, priceHistory[derivedId]);
+          
+          // If it's 1KG Silver, instantly generate the 3KG derived history!
+          if (item === 'silver_999_1kg') {
+              const derivedId = 'silver_999_3kg';
+              priceHistory[derivedId] = fetchedHistory.map(row => {
+                  return { ...row, item: derivedId, price: row.price + 200 };
+              });
+              updateRateUI(derivedId, priceHistory[derivedId]);
+          }
       }
   });
 }
