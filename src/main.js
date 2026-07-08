@@ -210,7 +210,6 @@ function updateJaggedGraph(item, history) {
 
   let trendColor = '#eab308'; // Default Gold
   let trendGradient = 'url(#gradient-flat)';
-  let trendFilter = 'url(#glow-flat)';
   let trendOffset = 0; // Default vertical shift
   
   if (history.length > 1) {
@@ -219,18 +218,16 @@ function updateJaggedGraph(item, history) {
       if (currentVal > prevVal) {
           trendColor = '#22c55e'; // Green
           trendGradient = 'url(#gradient-up)';
-          trendFilter = 'url(#glow-up)';
           trendOffset = -15; // Shift higher up the card
       } else if (currentVal < prevVal) {
           trendColor = '#ef4444'; // Red
           trendGradient = 'url(#gradient-down)';
-          trendFilter = 'url(#glow-down)';
           trendOffset = 15; // Shift lower down the card
       }
   }
 
   // Save math to state for the continuous animation loop to consume
-  graphState[item] = { points, trendColor, trendGradient, trendFilter, trendOffset };
+  graphState[item] = { points, trendColor, trendGradient, trendOffset };
 }
 
 // Continuous Subtle Animation Loop
@@ -265,7 +262,7 @@ function animateJaggedGraphs() {
         
         pathEl.setAttribute('d', dPath);
         pathEl.setAttribute('stroke', state.trendColor);
-        pathEl.setAttribute('filter', state.trendFilter);
+        pathEl.style.filter = `drop-shadow(0px 1px 3px ${state.trendColor})`;
 
         fillEl.setAttribute('d', fillPath);
         fillEl.setAttribute('fill', state.trendGradient);
@@ -274,7 +271,7 @@ function animateJaggedGraphs() {
         dotEl.setAttribute('cx', lastPoint.x.toFixed(1));
         dotEl.setAttribute('cy', lastPoint.y.toFixed(1));
         dotEl.setAttribute('fill', state.trendColor);
-        dotEl.setAttribute('filter', state.trendFilter);
+        dotEl.style.filter = `drop-shadow(0px 1px 4px ${state.trendColor})`;
     });
     
     requestAnimationFrame(animateJaggedGraphs);
