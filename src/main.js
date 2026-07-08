@@ -154,6 +154,10 @@ function updateRateUI(item, history) {
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
   }
+  
+  if (['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'].includes(item)) {
+    updateJaggedGraph(item, history);
+  }
 }
 
 function formatPriceDecimal(value) {
@@ -165,13 +169,24 @@ function formatPriceDecimal(value) {
   });
 }
 
-function generateDiagonalSplinePath(history, time = 0) {
+function updateJaggedGraph(item, history) {
   let dataPoints = history;
   if (!dataPoints || dataPoints.length === 0) {
       dataPoints = [{price: 100}, {price: 100}];
   } else if (dataPoints.length === 1) {
       dataPoints = [history[0], history[0]];
+  } else {
+      // Use up to the last 15 data points for a detailed sparkline
+      dataPoints = history.slice(-15);
   }
+
+  const map = domMap[item];
+  if (!map) return;
+  
+  const pathEl = document.getElementById(`${item.replace('_', '-')}-sparkline-path`);
+  const fillEl = document.getElementById(`${item.replace('_', '-')}-sparkline-fill`);
+  const dotEl = document.getElementById(`${item.replace('_', '-')}-sparkline-dot`);
+  if (!pathEl || !fillEl || !dotEl) return;
 
   const prices = dataPoints.map(r => parseFloat(r.price));
   const minPrice = Math.min(...prices);
@@ -184,81 +199,55 @@ function generateDiagonalSplinePath(history, time = 0) {
     let normalized = (p - minPrice) / range;
     if (isStagnant) normalized = 0.5;
     
-    // Diagonal travels from x=50 to x=100 (50% of width, much smaller)
-    const x = 50 + (i * (50 / (dataPoints.length - 1)));
-    
-    // Base diagonal Y travels from 100 (at x=50) to 50 (at x=100)
-    let diagonal_y = 100 - (x - 50);
-    
-    // Multi-frequency noise to simulate irregular financial chart spikes (big crests and troughs)
-    let noise = Math.sin(time * 1.5 + x * 0.3) * 6 + Math.cos(time * 0.9 + x * 0.7) * 4;
-    
-    // Subtle data perturbation and the large irregular graph noise
-    let y = diagonal_y - (normalized * 10) + noise;
-    
+    // x goes from 0 to 100
+    const x = i * (100 / (dataPoints.length - 1));
+    // y goes from 35 (bottom) to 5 (top) to keep it within viewBox 100 40 and leave room for dot/glow
+    const y = 35 - (normalized * 30);
     return { x, y };
   });
 
   let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-  
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i];
-    const p1 = points[i + 1];
-    
-    const cp1x = p0.x + (p1.x - p0.x) * 0.4;
-    const cp1y = p0.y;
-    const cp2x = p0.x + (p1.x - p0.x) * 0.6;
-    const cp2y = p1.y;
-
-    dPath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+  for (let i = 1; i < points.length; i++) {
+    dPath += ` L ${points[i].x.toFixed(1)} ${points[i].y.toFixed(1)}`;
   }
   
-  return dPath;
-}
+  // Fill Path drops down to the bottom
+  const fillPath = `${dPath} L 100 40 L 0 40 Z`;
 
-// Continuous Subtle Animation Loop
-let waveTime = 0;
-function animateDiagonalGraphs() {
-    waveTime += 0.015; // Extremely slow, subtle movement 
-    
-    const items = ['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'];
-    
-    items.forEach(item => {
-        let history = priceHistory[item] || [];
-        const map = domMap[item];
-        if (!map) return;
-        
-        const pathEl = document.getElementById(map.path);
-        const fillEl = document.getElementById(map.fill);
-        if (!pathEl || !fillEl) return;
-        
-        let trendColor = '#2563eb';
-        let trendGradient = 'url(#sparkline-gradient-blue)';
-        
-        if (history.length > 1) {
-            const currentVal = parseFloat(history[history.length - 1].price);
-            const prevVal = parseFloat(history[history.length - 2].price);
-            if (currentVal > prevVal) {
-                trendColor = '#16a34a';
-                trendGradient = 'url(#sparkline-gradient-green)';
-            } else if (currentVal < prevVal) {
-                trendColor = '#dc2626';
-                trendGradient = 'url(#sparkline-gradient-red)';
-            }
-        }
-        
-        pathEl.setAttribute("stroke", trendColor);
-        fillEl.setAttribute("fill", trendGradient);
-        
-        const dPath = generateDiagonalSplinePath(history, waveTime);
-        pathEl.setAttribute("d", dPath);
-        fillEl.setAttribute("d", `${dPath} L 100 100 L 50 100 Z`);
-    });
-    
-    requestAnimationFrame(animateDiagonalGraphs);
-}
+  let trendColor = '#eab308'; // Default Gold
+  let trendGradient = 'url(#gradient-flat)';
+  let trendFilter = 'url(#glow-flat)';
+  
+  if (history.length > 1) {
+      const currentVal = parseFloat(history[history.length - 1].price);
+      const prevVal = parseFloat(history[history.length - 2].price);
+      if (currentVal > prevVal) {
+          trendColor = '#22c55e'; // Green
+          trendGradient = 'url(#gradient-up)';
+          trendFilter = 'url(#glow-up)';
+      } else if (currentVal < prevVal) {
+          trendColor = '#ef4444'; // Red
+          trendGradient = 'url(#gradient-down)';
+          trendFilter = 'url(#glow-down)';
+      }
+  }
 
-requestAnimationFrame(animateDiagonalGraphs);
+  // Apply Line Attributes
+  pathEl.setAttribute('d', dPath);
+  pathEl.setAttribute('stroke', trendColor);
+  pathEl.setAttribute('filter', trendFilter);
+
+  // Apply Fill Attributes
+  fillEl.setAttribute('d', fillPath);
+  fillEl.setAttribute('fill', trendGradient);
+
+  // Apply Dot Attributes (position at the last point)
+  const lastPoint = points[points.length - 1];
+  dotEl.setAttribute('cx', lastPoint.x.toFixed(1));
+  dotEl.setAttribute('cy', lastPoint.y.toFixed(1));
+  dotEl.setAttribute('fill', trendColor);
+  dotEl.setAttribute('filter', trendFilter);
+}
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
