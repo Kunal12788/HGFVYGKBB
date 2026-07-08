@@ -297,8 +297,6 @@ function animateJaggedGraphs() {
 document.addEventListener('DOMContentLoaded', () => {
   // Handle Splash Sequence
   const splashOverlay = document.getElementById('splash-overlay');
-  const splash1 = document.getElementById('splash-screen-1');
-  const splash2 = document.getElementById('splash-screen-2');
   const splashGreeting = document.getElementById('splash-greeting');
 
   if (splashOverlay) {
