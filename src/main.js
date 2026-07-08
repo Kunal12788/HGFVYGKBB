@@ -302,33 +302,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const splashGreeting = document.getElementById('splash-greeting');
 
   if (splashOverlay) {
-      // Set dynamic greeting
+      // Set dynamic greeting with two-line layout
       const hour = new Date().getHours();
       let greeting = 'Good Evening';
       if (hour < 12) greeting = 'Good Morning';
       else if (hour < 17) greeting = 'Good Afternoon';
-      splashGreeting.textContent = greeting;
+      splashGreeting.innerHTML = `${greeting}<br/><span class="text-3xl sm:text-4xl text-brand-blue/80">to SSR Bullion</span>`;
 
-      // Sequence Timers
-      // At 2.5s: Fade out Screen 1, Fade in Screen 2
-      setTimeout(() => {
-          splash1.classList.remove('opacity-100', 'scale-100');
-          splash1.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
-          
-          splash2.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
-          splash2.classList.add('opacity-100', 'scale-100');
-      }, 2500);
-
-      // At 5.5s: Fade out entire overlay
+      // Sequence Timers (Aligning with Aurora CSS Keyframes)
+      // The CSS animations automatically fade the elements out by 8.5s.
+      // We start fading the master background at 8.2s to blend smoothly into the app.
       setTimeout(() => {
           splashOverlay.classList.remove('opacity-100');
           splashOverlay.classList.add('opacity-0', 'pointer-events-none');
-      }, 5500);
+      }, 8200);
 
-      // At 6.5s: Remove overlay from DOM entirely to free memory
+      // Remove the DOM overlay entirely at 9.5s
       setTimeout(() => {
           splashOverlay.remove();
-      }, 6500);
+      }, 9500);
   }
 
   fetchInitialRates();
