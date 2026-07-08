@@ -151,50 +151,8 @@ function updateRateUI(item, history) {
   if (!map) return;
 
   const priceEl = document.getElementById(map.price);
-  const pathEl = document.getElementById(map.path);
-  const fillEl = document.getElementById(map.fill);
-
-  let trendColor = '#2563eb';
-  let trendGradient = 'url(#sparkline-gradient-blue)';
-  let colorClass = 'text-primary';
-
-  if (history.length > 1) {
-    const currentVal = parseFloat(current.price);
-    const prevVal = parseFloat(history[history.length - 2].price);
-    
-    if (currentVal > prevVal) {
-      colorClass = 'text-green-500';
-      trendColor = '#16a34a';
-      trendGradient = 'url(#sparkline-gradient-green)';
-    } else if (currentVal < prevVal) {
-      colorClass = 'text-red-500';
-      trendColor = '#dc2626';
-      trendGradient = 'url(#sparkline-gradient-red)';
-    }
-  }
-
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
-    priceEl.classList.remove('text-primary', 'text-green-500', 'text-red-500');
-    priceEl.classList.add(colorClass);
-  }
-
-  // Generate the static spline and set colors
-  if (pathEl && fillEl) {
-    pathEl.setAttribute("stroke", trendColor);
-    fillEl.setAttribute("fill", trendGradient);
-    
-    // Generate accurate spline paths based on data
-    const dPath = generateSplinePath(history);
-    pathEl.setAttribute("d", dPath);
-    fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
-    
-    // Trigger Recharts-style draw animation
-    pathEl.style.animation = 'none';
-    fillEl.style.animation = 'none';
-    pathEl.offsetHeight; // trigger reflow
-    pathEl.style.animation = 'drawLine 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-    fillEl.style.animation = 'fillFadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
   }
 }
 
@@ -207,48 +165,43 @@ function formatPriceDecimal(value) {
   });
 }
 
-function generateSplinePath(history, isStagnant = false, time = 0) {
+function generateDiagonalSplinePath(history, time = 0) {
   let dataPoints = history;
-  if (dataPoints.length === 1) {
-    dataPoints = [history[0], history[0]];
+  if (!dataPoints || dataPoints.length === 0) {
+      dataPoints = [{price: 100}, {price: 100}];
+  } else if (dataPoints.length === 1) {
+      dataPoints = [history[0], history[0]];
   }
 
   const prices = dataPoints.map(r => parseFloat(r.price));
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const range = maxPrice - minPrice || 1; 
-
-  const width = 100;
-  const height = 30; // Max height for line chart
-  const startY = 32; // Y offset 
+  const isStagnant = (maxPrice === minPrice);
 
   const points = dataPoints.map((point, i) => {
     const p = parseFloat(point.price);
     let normalized = (p - minPrice) / range;
+    if (isStagnant) normalized = 0.5;
     
-    if (maxPrice === minPrice) {
-      normalized = 0.5; // Perfectly centered if entirely stagnant
-    }
+    // Diagonal travels from x=30 to x=100 to fill the bottom right corner
+    const x = 30 + (i * (70 / (dataPoints.length - 1)));
     
-    const x = i * (width / (dataPoints.length - 1));
-    let y = startY - (normalized * height);
+    // Base diagonal Y travels from 100 (at x=30) to 30 (at x=100)
+    let diagonal_y = 100 - (x - 30);
     
-    // Only apply the fluid movement pattern if the data is stagnant!
-    if (isStagnant) {
-        y += Math.sin(time + (x * 0.1)) * 1.5; // Gentle, elegant ripple
-    }
+    // Perturb line based on price data and continuous fluid animation
+    let y = diagonal_y - (normalized * 15) + (Math.sin(time + x * 0.15) * 3);
     
     return { x, y };
   });
 
   let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
   
-  // Create bezier curve control points for smooth fluid lines (Spline)
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
     const p1 = points[i + 1];
     
-    // 0.4 provides a beautiful, modern smooth curve without sharp zig-zags
     const cp1x = p0.x + (p1.x - p0.x) * 0.4;
     const cp1y = p0.y;
     const cp2x = p0.x + (p1.x - p0.x) * 0.6;
@@ -260,19 +213,15 @@ function generateSplinePath(history, isStagnant = false, time = 0) {
   return dPath;
 }
 
-// --- Conditional Stagnant Animation Loop ---
+// Continuous Fluid Animation Loop
 let waveTime = 0;
-function animateStagnantGraphs() {
-    waveTime += 0.03; // Very slow and elegant speed
+function animateDiagonalGraphs() {
+    waveTime += 0.05; 
     
-    const allItems = ['gold_995_100gms', 'silver_999_1kg', 'gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'];
+    const items = ['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'];
     
-    allItems.forEach(item => {
-        let history = priceHistory[item];
-        if (!history || history.length === 0) {
-            history = [{ price: 100 }, { price: 100 }];
-        }
-        
+    items.forEach(item => {
+        let history = priceHistory[item] || [];
         const map = domMap[item];
         if (!map) return;
         
@@ -280,22 +229,33 @@ function animateStagnantGraphs() {
         const fillEl = document.getElementById(map.fill);
         if (!pathEl || !fillEl) return;
         
-        const prices = history.map(r => parseFloat(r.price));
-        const isStagnant = Math.max(...prices) === Math.min(...prices);
+        let trendColor = '#2563eb';
+        let trendGradient = 'url(#sparkline-gradient-blue)';
         
-        // ONLY mathematically ripple if the data is completely stagnant
-        if (isStagnant) {
-            const dPath = generateSplinePath(history, true, waveTime);
-            pathEl.setAttribute("d", dPath);
-            fillEl.setAttribute("d", `${dPath} L100 40 L0 40 Z`);
+        if (history.length > 1) {
+            const currentVal = parseFloat(history[history.length - 1].price);
+            const prevVal = parseFloat(history[history.length - 2].price);
+            if (currentVal > prevVal) {
+                trendColor = '#16a34a';
+                trendGradient = 'url(#sparkline-gradient-green)';
+            } else if (currentVal < prevVal) {
+                trendColor = '#dc2626';
+                trendGradient = 'url(#sparkline-gradient-red)';
+            }
         }
+        
+        pathEl.setAttribute("stroke", trendColor);
+        fillEl.setAttribute("fill", trendGradient);
+        
+        const dPath = generateDiagonalSplinePath(history, waveTime);
+        pathEl.setAttribute("d", dPath);
+        fillEl.setAttribute("d", `${dPath} L 100 100 L 30 100 Z`);
     });
     
-    requestAnimationFrame(animateStagnantGraphs);
+    requestAnimationFrame(animateDiagonalGraphs);
 }
 
-// Start the conditional loop
-requestAnimationFrame(animateStagnantGraphs);
+requestAnimationFrame(animateDiagonalGraphs);
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
