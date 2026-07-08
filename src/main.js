@@ -321,7 +321,6 @@ function animateJaggedGraphs() {
       }, 7000);
   }
 
-  fetchInitialRates();
   requestAnimationFrame(animateJaggedGraphs);
     const tabGold = document.getElementById('tab-gold');
     const tabSilver = document.getElementById('tab-silver');
