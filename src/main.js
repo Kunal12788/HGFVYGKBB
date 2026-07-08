@@ -245,16 +245,16 @@ function formatPriceDecimal(value) {
     const navMarkets = document.getElementById('nav-markets');
     const navBank = document.getElementById('nav-bank');
     const navIntelligence = document.getElementById('nav-intelligence');
-    const navSecure = document.getElementById('nav-secure');
+    const navServices = document.getElementById('nav-services');
     
     const screenMarkets = document.getElementById('screen-markets');
     const screenBank = document.getElementById('screen-bank');
     const screenIntelligence = document.getElementById('screen-intelligence');
-    const screenSecure = document.getElementById('screen-secure');
+    const screenServices = document.getElementById('screen-services');
     
     // Bottom Nav Routing Logic
-    const navButtons = [navMarkets, navBank, navIntelligence, navSecure];
-    const navScreens = [screenMarkets, screenBank, screenIntelligence, screenSecure];
+    const navButtons = [navMarkets, navBank, navIntelligence, navServices];
+    const navScreens = [screenMarkets, screenBank, screenIntelligence, screenServices];
 
     function switchNavScreen(activeButton, activeScreen) {
         // Reset all buttons to inactive state
@@ -295,7 +295,7 @@ function formatPriceDecimal(value) {
     if(navMarkets) navMarkets.addEventListener('click', () => switchNavScreen(navMarkets, screenMarkets));
     if(navBank) navBank.addEventListener('click', () => switchNavScreen(navBank, screenBank));
     if(navIntelligence) navIntelligence.addEventListener('click', () => switchNavScreen(navIntelligence, screenIntelligence));
-    if(navSecure) navSecure.addEventListener('click', () => switchNavScreen(navSecure, screenSecure));
+    if(navServices) navServices.addEventListener('click', () => switchNavScreen(navServices, screenServices));
 
     // Top Toggle Logic (Gold / Silver)
     if(tabGold && tabSilver && goldSection && silverSection && tabIndicator) {
