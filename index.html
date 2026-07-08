@@ -93,11 +93,19 @@
                         <defs><pattern height="10" id="grid" patternunits="userSpaceOnUse" width="10"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.1"></path></pattern></defs>
                         <rect fill="url(#grid)" height="100%" width="100%"></rect>
                     </svg>
-                    <!-- Floating Symbols -->
-                    <div class="absolute top-[20%] left-[15%] animate-float-1 hidden sm:block"><span class="material-symbols-outlined text-primary text-5xl">shield</span></div>
-                    <div class="absolute bottom-[20%] right-[15%] animate-float-2 hidden sm:block"><span class="material-symbols-outlined text-tertiary text-6xl">lock</span></div>
-                    <div class="absolute top-[30%] right-[20%] animate-float-3 hidden sm:block"><span class="material-symbols-outlined text-primary text-4xl">account_balance</span></div>
-                    <div class="absolute bottom-[25%] left-[20%] animate-float-4 hidden sm:block"><span class="material-symbols-outlined text-tertiary text-5xl">door_sliding</span></div>
+                    <!-- Floating Trust, Loyalty, Secure Symbols -->
+                    <div class="absolute top-[15%] left-[10%] sm:top-[20%] sm:left-[20%] animate-float-1 flex flex-col items-center gap-1 opacity-70">
+                        <span class="material-symbols-outlined text-brand-blue text-3xl sm:text-4xl drop-shadow-sm">shield</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold text-brand-blue uppercase tracking-widest">Secure</span>
+                    </div>
+                    <div class="absolute bottom-[20%] left-[15%] sm:bottom-[25%] sm:left-[25%] animate-float-2 flex flex-col items-center gap-1 opacity-70">
+                        <span class="material-symbols-outlined text-yellow-600 text-3xl sm:text-4xl drop-shadow-sm">workspace_premium</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold text-yellow-600 uppercase tracking-widest">Loyalty</span>
+                    </div>
+                    <div class="absolute top-[20%] right-[10%] sm:top-[25%] sm:right-[25%] animate-float-3 flex flex-col items-center gap-1 opacity-70">
+                        <span class="material-symbols-outlined text-green-600 text-3xl sm:text-4xl drop-shadow-sm">verified_user</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold text-green-600 uppercase tracking-widest">Trusted</span>
+                    </div>
                     <!-- Rings of Trust -->
                     <div class="absolute w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] border border-primary/5 rounded-full animate-[spin_60s_linear_infinite]"></div>
                     <div class="absolute w-[450px] h-[450px] sm:w-[550px] sm:h-[550px] border border-tertiary/5 rounded-full animate-[spin_90s_linear_infinite_reverse]"></div>
