@@ -184,14 +184,14 @@ function generateDiagonalSplinePath(history, time = 0) {
     let normalized = (p - minPrice) / range;
     if (isStagnant) normalized = 0.5;
     
-    // Diagonal travels from x=30 to x=100 to fill the bottom right corner
-    const x = 30 + (i * (70 / (dataPoints.length - 1)));
+    // Diagonal travels from x=50 to x=100 (50% of width, much smaller)
+    const x = 50 + (i * (50 / (dataPoints.length - 1)));
     
-    // Base diagonal Y travels from 100 (at x=30) to 30 (at x=100)
-    let diagonal_y = 100 - (x - 30);
+    // Base diagonal Y travels from 100 (at x=50) to 50 (at x=100)
+    let diagonal_y = 100 - (x - 50);
     
-    // Perturb line based on price data and continuous fluid animation
-    let y = diagonal_y - (normalized * 15) + (Math.sin(time + x * 0.15) * 3);
+    // Subtle data perturbation and very gentle, slow graph flutter
+    let y = diagonal_y - (normalized * 10) + (Math.sin(time + x * 0.1) * 1.0);
     
     return { x, y };
   });
@@ -213,10 +213,10 @@ function generateDiagonalSplinePath(history, time = 0) {
   return dPath;
 }
 
-// Continuous Fluid Animation Loop
+// Continuous Subtle Animation Loop
 let waveTime = 0;
 function animateDiagonalGraphs() {
-    waveTime += 0.05; 
+    waveTime += 0.015; // Extremely slow, subtle movement 
     
     const items = ['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'];
     
@@ -249,7 +249,7 @@ function animateDiagonalGraphs() {
         
         const dPath = generateDiagonalSplinePath(history, waveTime);
         pathEl.setAttribute("d", dPath);
-        fillEl.setAttribute("d", `${dPath} L 100 100 L 30 100 Z`);
+        fillEl.setAttribute("d", `${dPath} L 100 100 L 50 100 Z`);
     });
     
     requestAnimationFrame(animateDiagonalGraphs);
