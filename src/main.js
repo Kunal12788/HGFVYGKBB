@@ -46,7 +46,29 @@ function initSupabase() {
 
 async function startApp() {
   await fetchLatestPrices();
+  await fetchBankDetails();
   subscribeToRealtime();
+}
+
+async function fetchBankDetails() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('bank_details')
+            .select('*')
+            .order('id', { ascending: true })
+            .limit(2);
+            
+        if (!error && data) {
+            data.forEach((bankRow, index) => {
+                const titleEl = document.getElementById(`bank-title-${index}`);
+                const imageEl = document.getElementById(`bank-image-${index}`);
+                if (titleEl) titleEl.textContent = bankRow.title;
+                if (imageEl) imageEl.src = bankRow.image_url;
+            });
+        }
+    } catch (err) {
+        console.error("Failed to load bank details", err);
+    }
 }
 
 // Derived Items configuration

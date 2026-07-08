@@ -362,9 +362,30 @@
         <!-- END MARKETS SCREEN -->
 
         <!-- BANK INFO SCREEN -->
-        <div id="screen-bank" class="hidden flex-1 flex-col relative overflow-hidden w-full h-full justify-center items-center">
-            <span class="material-symbols-outlined text-[48px] text-slate-300 mb-3">account_balance</span>
-            <p class="text-slate-500 font-medium text-[15px]">Bank Info Coming Soon</p>
+        <div id="screen-bank" class="hidden flex-1 flex-col relative overflow-hidden w-full h-full">
+            <div id="bank-cards-container" class="flex flex-col gap-4 px-4 mt-4 flex-1 overflow-y-auto pb-[100px]">
+                
+                <!-- Bank Card 1 -->
+                <div class="flex-1 flex flex-col bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] overflow-hidden relative">
+                    <div class="p-3 bg-brand-light flex justify-center items-center">
+                        <span id="bank-title-0" class="text-brand-blue font-extrabold text-[15px] tracking-wide">Bank Transfer</span>
+                    </div>
+                    <div class="flex-1 p-3 flex justify-center items-center min-h-[160px]">
+                        <img id="bank-image-0" src="https://placehold.co/400x400/F8F9FB/475569?text=Loading..." alt="Bank Detail 1" class="w-full h-full object-contain rounded-lg max-h-[220px]">
+                    </div>
+                </div>
+
+                <!-- Bank Card 2 -->
+                <div class="flex-1 flex flex-col bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] overflow-hidden relative">
+                    <div class="p-3 bg-brand-light flex justify-center items-center">
+                        <span id="bank-title-1" class="text-brand-blue font-extrabold text-[15px] tracking-wide">UPI / QR Code</span>
+                    </div>
+                    <div class="flex-1 p-3 flex justify-center items-center min-h-[160px]">
+                        <img id="bank-image-1" src="https://placehold.co/400x400/F8F9FB/475569?text=Loading..." alt="Bank Detail 2" class="w-full h-full object-contain rounded-lg max-h-[220px]">
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- INTELLIGENCE SCREEN -->
