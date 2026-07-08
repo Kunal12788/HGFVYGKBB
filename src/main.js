@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let greeting = 'Good Evening';
       if (hour < 12) greeting = 'Good Morning';
       else if (hour < 17) greeting = 'Good Afternoon';
-      splashGreeting.innerHTML = `${greeting}<br/><span class="text-3xl sm:text-4xl text-brand-blue/80">to SSR Bullion</span>`;
+      splashGreeting.innerHTML = `${greeting}<br/><span class="text-4xl sm:text-5xl lg:text-6xl text-brand-blue/90 font-premium tracking-widest drop-shadow-sm mt-2 block">SSR Bullion</span>`;
 
       // Sequence Timers (Aligning with 7-second CSS Keyframes)
       // The CSS animations automatically fade the elements out by 5.95s (85% of 7s).
