@@ -15,7 +15,7 @@ const monitoredItems = [
     'gold_14k',
     'gold_9k',
     'silver_999_1kg',
-    'silver_999_100g'
+    'silver_999_3kg'
 ];
 
 // Price History Cache for Sparklines (max 10 points per item)
@@ -31,7 +31,7 @@ const domMap = {
     'gold_14k': { price: 'gold-14k-price' },
     'gold_9k':  { price: 'gold-9k-price' },
     'silver_999_1kg':  { price: 'silver-price' },
-    'silver_999_100g': { price: 'silver-100g-price' }
+    'silver_999_3kg': { price: 'silver-3kg-price' }
 };
 
 // Initialize Supabase Connection
@@ -108,10 +108,10 @@ async function fetchLatestPrices() {
           priceHistory[item] = fetchedHistory;
           updateRateUI(item, priceHistory[item]);
 
-          // Instantly generate 100G silver history
-          const derivedId = 'silver_999_100g';
+          // Instantly generate 3KG silver history
+          const derivedId = 'silver_999_3kg';
           priceHistory[derivedId] = fetchedHistory.map(row => {
-              return { ...row, item: derivedId, price: row.price / 10 };
+              return { ...row, item: derivedId, price: row.price + 200 };
           });
           updateRateUI(derivedId, priceHistory[derivedId]);
       }
@@ -152,9 +152,9 @@ function handleNewRate(record) {
       if (priceHistory[item].length > 10) priceHistory[item].shift();
       updateRateUI(item, priceHistory[item]);
 
-      // Instantly generate and update 100g silver
-      const derivedId = 'silver_999_100g';
-      const syntheticRecord = { ...record, item: derivedId, price: record.price / 10 };
+      // Instantly generate and update 3kg silver
+      const derivedId = 'silver_999_3kg';
+      const syntheticRecord = { ...record, item: derivedId, price: record.price + 200 };
       
       priceHistory[derivedId].push(syntheticRecord);
       if (priceHistory[derivedId].length > 10) priceHistory[derivedId].shift();
