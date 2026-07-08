@@ -153,6 +153,22 @@ function updateRateUI(item, history) {
   const priceEl = document.getElementById(map.price);
   if (priceEl) {
     priceEl.textContent = '₹' + formattedPrice;
+    
+    // Dynamic text color for 24K Gold card
+    if (item === 'gold_995_100gms' && history.length > 1) {
+        const currentVal = parseFloat(current.price);
+        const prevVal = parseFloat(history[history.length - 2].price);
+        
+        priceEl.classList.remove('text-brand-blue', 'text-green-500', 'text-red-500', 'text-[#2563eb]', 'text-[#16a34a]', 'text-[#dc2626]');
+        
+        if (currentVal > prevVal) {
+            priceEl.classList.add('text-green-500');
+        } else if (currentVal < prevVal) {
+            priceEl.classList.add('text-red-500');
+        } else {
+            priceEl.classList.add('text-brand-blue');
+        }
+    }
   }
   
   if (['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'].includes(item)) {
