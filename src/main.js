@@ -14,7 +14,8 @@ const monitoredItems = [
     'gold_18k',
     'gold_14k',
     'gold_9k',
-    'silver_999_1kg'
+    'silver_999_1kg',
+    'silver_999_100g'
 ];
 
 // Price History Cache for Sparklines (max 10 points per item)
@@ -29,7 +30,8 @@ const domMap = {
     'gold_18k': { price: 'gold-18k-price' },
     'gold_14k': { price: 'gold-14k-price' },
     'gold_9k':  { price: 'gold-9k-price' },
-    'silver_999_1kg':  { price: 'silver-price' }
+    'silver_999_1kg':  { price: 'silver-price' },
+    'silver_999_100g': { price: 'silver-100g-price' }
 };
 
 // Initialize Supabase Connection
@@ -101,6 +103,17 @@ async function fetchLatestPrices() {
                   updateRateUI(derived.id, priceHistory[derived.id]);
               });
           }
+      } else if (item === 'silver_999_1kg' && !res.error && res.data && res.data.length > 0) {
+          const fetchedHistory = res.data.reverse();
+          priceHistory[item] = fetchedHistory;
+          updateRateUI(item, priceHistory[item]);
+
+          // Instantly generate 100G silver history
+          const derivedId = 'silver_999_100g';
+          priceHistory[derivedId] = fetchedHistory.map(row => {
+              return { ...row, item: derivedId, price: row.price / 10 };
+          });
+          updateRateUI(derivedId, priceHistory[derivedId]);
       }
   });
 }
@@ -138,6 +151,14 @@ function handleNewRate(record) {
       priceHistory[item].push(record);
       if (priceHistory[item].length > 10) priceHistory[item].shift();
       updateRateUI(item, priceHistory[item]);
+
+      // Instantly generate and update 100g silver
+      const derivedId = 'silver_999_100g';
+      const syntheticRecord = { ...record, item: derivedId, price: record.price / 10 };
+      
+      priceHistory[derivedId].push(syntheticRecord);
+      if (priceHistory[derivedId].length > 10) priceHistory[derivedId].shift();
+      updateRateUI(derivedId, priceHistory[derivedId]);
   }
 }
 

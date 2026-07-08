@@ -309,22 +309,56 @@
 
         <!-- SILVER SECTION -->
         <div id="silver-section" class="hidden absolute inset-0 pt-[74px] flex flex-col w-full transition-all duration-300 ease-out transform translate-x-4 opacity-0 h-full overflow-hidden">
-            <!-- 999 Silver Main Card -->
-            <div class="px-4 mt-3 flex-[0.8] flex flex-col min-h-[140px]">
-                <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-center items-center relative py-2">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">99.9%</span>
-                        <span class="text-slate-800 text-[16px] font-medium">1KG Fine Silver</span>
-                    </div>
-                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
-                        <span id="silver-price" class="text-brand-blue text-[40px] font-bold tracking-tight tabular-nums">--</span>
-                        <span class="text-[12px] font-semibold text-slate-500 mb-1">/1kg</span>
+            <div class="flex flex-col gap-3 px-4 mt-3 flex-1 pb-[100px]">
+                
+                <!-- Card 1: 1KG Fine Silver -->
+                <div class="flex-1 flex flex-col min-h-[140px]">
+                    <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-center items-center relative px-4 py-3 overflow-hidden">
+                        
+                        <!-- Top: Purity and Title -->
+                        <div class="flex justify-center items-center gap-2 mb-2.5 z-10 w-full">
+                            <span class="bg-brand-light text-brand-blue text-[11px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
+                            <span class="text-brand-blue text-[18px] font-extrabold whitespace-nowrap drop-shadow-sm">1KG Fine Silver</span>
+                        </div>
+
+                        <!-- Middle: Image (grayscale for silver look) -->
+                        <div class="w-[100px] h-[100px] rounded-full overflow-hidden shadow-sm border-2 border-brand-light z-20 mb-1.5 shrink-0">
+                            <img src="/gold-bar-icon.jpg" alt="Silver Bar" class="w-full h-full object-cover grayscale">
+                        </div>
+
+                        <!-- Bottom: Price Content Centered -->
+                        <div class="flex items-baseline justify-center gap-1 relative z-10 w-full">
+                            <span id="silver-price" class="text-brand-blue text-[40px] font-bold tracking-tight tabular-nums leading-none">--</span>
+                            <span class="text-[12px] font-semibold text-slate-500">/1kg</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Card 2: 100G Fine Silver -->
+                <div class="flex-1 flex flex-col min-h-[140px]">
+                    <div class="bg-white rounded-[1.5rem] shadow-[0_6px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col justify-center items-center relative px-4 py-3 overflow-hidden">
+                        
+                        <!-- Top: Purity and Title -->
+                        <div class="flex justify-center items-center gap-2 mb-2.5 z-10 w-full">
+                            <span class="bg-brand-light text-brand-blue text-[11px] font-bold px-2 py-0.5 rounded tracking-wide shrink-0">99.99%</span>
+                            <span class="text-brand-blue text-[18px] font-extrabold whitespace-nowrap drop-shadow-sm">100G Fine Silver</span>
+                        </div>
+
+                        <!-- Middle: Image (grayscale for silver look) -->
+                        <div class="w-[100px] h-[100px] rounded-full overflow-hidden shadow-sm border-2 border-brand-light z-20 mb-1.5 shrink-0">
+                            <img src="/gold-bar-icon.jpg" alt="Silver Bar" class="w-full h-full object-cover grayscale">
+                        </div>
+
+                        <!-- Bottom: Price Content Centered -->
+                        <div class="flex items-baseline justify-center gap-1 relative z-10 w-full">
+                            <span id="silver-100g-price" class="text-brand-blue text-[40px] font-bold tracking-tight tabular-nums leading-none">--</span>
+                            <span class="text-[12px] font-semibold text-slate-500">/100g</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <!-- Filler with exact pb-[100px] gap for bottom nav -->
-            <div class="flex-[1.2] pb-[100px]"></div>
-              </div>
+        </div>
         <!-- END MARKETS SCREEN -->
 
         <!-- BANK INFO SCREEN -->
