@@ -169,6 +169,8 @@ function formatPriceDecimal(value) {
   });
 }
 
+const graphState = {};
+
 function updateJaggedGraph(item, history) {
   let dataPoints = history;
   if (!dataPoints || dataPoints.length === 0) {
@@ -201,22 +203,15 @@ function updateJaggedGraph(item, history) {
     
     // x goes from 0 to 100
     const x = i * (100 / (dataPoints.length - 1));
-    // y goes from 35 (bottom) to 5 (top) to keep it within viewBox 100 40 and leave room for dot/glow
-    const y = 35 - (normalized * 30);
+    // y goes from 60 (bottom) to 20 (top) to keep it centered in viewBox 100 80
+    const y = 60 - (normalized * 40);
     return { x, y };
   });
-
-  let dPath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-  for (let i = 1; i < points.length; i++) {
-    dPath += ` L ${points[i].x.toFixed(1)} ${points[i].y.toFixed(1)}`;
-  }
-  
-  // Fill Path drops down to the bottom
-  const fillPath = `${dPath} L 100 40 L 0 40 Z`;
 
   let trendColor = '#eab308'; // Default Gold
   let trendGradient = 'url(#gradient-flat)';
   let trendFilter = 'url(#glow-flat)';
+  let trendOffset = 0; // Default vertical shift
   
   if (history.length > 1) {
       const currentVal = parseFloat(history[history.length - 1].price);
@@ -225,28 +220,64 @@ function updateJaggedGraph(item, history) {
           trendColor = '#22c55e'; // Green
           trendGradient = 'url(#gradient-up)';
           trendFilter = 'url(#glow-up)';
+          trendOffset = -15; // Shift higher up the card
       } else if (currentVal < prevVal) {
           trendColor = '#ef4444'; // Red
           trendGradient = 'url(#gradient-down)';
           trendFilter = 'url(#glow-down)';
+          trendOffset = 15; // Shift lower down the card
       }
   }
 
-  // Apply Line Attributes
-  pathEl.setAttribute('d', dPath);
-  pathEl.setAttribute('stroke', trendColor);
-  pathEl.setAttribute('filter', trendFilter);
+  // Save math to state for the continuous animation loop to consume
+  graphState[item] = { points, trendColor, trendGradient, trendFilter, trendOffset };
+}
 
-  // Apply Fill Attributes
-  fillEl.setAttribute('d', fillPath);
-  fillEl.setAttribute('fill', trendGradient);
+// Continuous Subtle Animation Loop
+let waveTime = 0;
+function animateJaggedGraphs() {
+    waveTime += 0.03; 
+    
+    ['gold_22k', 'gold_20k', 'gold_18k', 'gold_14k', 'gold_9k'].forEach(item => {
+        const state = graphState[item];
+        if (!state) return;
+        
+        const pathEl = document.getElementById(`${item.replace('_', '-')}-sparkline-path`);
+        const fillEl = document.getElementById(`${item.replace('_', '-')}-sparkline-fill`);
+        const dotEl = document.getElementById(`${item.replace('_', '-')}-sparkline-dot`);
+        if (!pathEl || !fillEl || !dotEl) return;
+        
+        // Continuous breathing effect applied to Y coordinates
+        const breathe = Math.sin(waveTime) * 1.5; 
+        
+        const currentPoints = state.points.map(p => ({
+            x: p.x,
+            y: p.y + state.trendOffset + breathe 
+        }));
+        
+        let dPath = `M ${currentPoints[0].x.toFixed(1)} ${currentPoints[0].y.toFixed(1)}`;
+        for (let i = 1; i < currentPoints.length; i++) {
+            dPath += ` L ${currentPoints[i].x.toFixed(1)} ${currentPoints[i].y.toFixed(1)}`;
+        }
+        
+        // Fill path extended safely to bottom of 80px viewBox
+        const fillPath = `${dPath} L 100 120 L 0 120 Z`;
+        
+        pathEl.setAttribute('d', dPath);
+        pathEl.setAttribute('stroke', state.trendColor);
+        pathEl.setAttribute('filter', state.trendFilter);
 
-  // Apply Dot Attributes (position at the last point)
-  const lastPoint = points[points.length - 1];
-  dotEl.setAttribute('cx', lastPoint.x.toFixed(1));
-  dotEl.setAttribute('cy', lastPoint.y.toFixed(1));
-  dotEl.setAttribute('fill', trendColor);
-  dotEl.setAttribute('filter', trendFilter);
+        fillEl.setAttribute('d', fillPath);
+        fillEl.setAttribute('fill', state.trendGradient);
+
+        const lastPoint = currentPoints[currentPoints.length - 1];
+        dotEl.setAttribute('cx', lastPoint.x.toFixed(1));
+        dotEl.setAttribute('cy', lastPoint.y.toFixed(1));
+        dotEl.setAttribute('fill', state.trendColor);
+        dotEl.setAttribute('filter', state.trendFilter);
+    });
+    
+    requestAnimationFrame(animateJaggedGraphs);
 }
 
 // UI Interaction Logic
