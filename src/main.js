@@ -108,7 +108,7 @@ async function fetchLatestPrices() {
           if (item === 'silver_999_1kg') {
               const derivedId = 'silver_999_3kg';
               priceHistory[derivedId] = fetchedHistory.map(row => {
-                  return { ...row, item: derivedId, price: row.price + 200 };
+                  return { ...row, item: derivedId, price: row.price - 200 };
               });
               updateRateUI(derivedId, priceHistory[derivedId]);
           }
@@ -152,7 +152,7 @@ function handleNewRate(record) {
 
       // Instantly generate and update 3kg silver
       const derivedId = 'silver_999_3kg';
-      const syntheticRecord = { ...record, item: derivedId, price: record.price + 200 };
+      const syntheticRecord = { ...record, item: derivedId, price: record.price - 200 };
       
       priceHistory[derivedId].push(syntheticRecord);
       if (priceHistory[derivedId].length > 10) priceHistory[derivedId].shift();
