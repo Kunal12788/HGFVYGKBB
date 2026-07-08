@@ -309,18 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (hour < 17) greeting = 'Good Afternoon';
       splashGreeting.innerHTML = `${greeting}<br/><span class="text-3xl sm:text-4xl text-brand-blue/80">to SSR Bullion</span>`;
 
-      // Sequence Timers (Aligning with Aurora CSS Keyframes)
-      // The CSS animations automatically fade the elements out by 8.5s.
-      // We start fading the master background at 8.2s to blend smoothly into the app.
+      // Sequence Timers (Aligning with faster 5-second CSS Keyframes)
+      // The CSS animations automatically fade the elements out by 4.25s.
+      // We start fading the master background at 4.2s to blend smoothly into the app.
       setTimeout(() => {
           splashOverlay.classList.remove('opacity-100');
           splashOverlay.classList.add('opacity-0', 'pointer-events-none');
-      }, 8200);
+      }, 4200);
 
-      // Remove the DOM overlay entirely at 9.5s
+      // Remove the DOM overlay entirely at 5.0s
       setTimeout(() => {
           splashOverlay.remove();
-      }, 9500);
+      }, 5000);
   }
 
   fetchInitialRates();
