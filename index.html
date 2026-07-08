@@ -39,17 +39,17 @@
   </script>
   <style>
         @keyframes aurora-brand-sequence {
-            0% { opacity: 0; transform: scale(0.96); filter: blur(8px); }
-            15% { opacity: 1; transform: scale(1); filter: blur(0px); }
-            35% { opacity: 1; transform: scale(1); filter: blur(0px); }
-            50% { opacity: 0; transform: scale(1.04); filter: blur(8px); }
+            0% { opacity: 0; transform: scale(0.98); }
+            10% { opacity: 1; transform: scale(1); }
+            35% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0; transform: scale(1.02); }
             100% { opacity: 0; }
         }
         @keyframes content-welcome-sequence {
-            0%, 42% { opacity: 0; transform: translateY(15px); filter: blur(8px); }
-            57% { opacity: 1; transform: translateY(0); filter: blur(0px); }
-            78% { opacity: 1; transform: translateY(0); filter: blur(0px); }
-            100% { opacity: 0; transform: translateY(-15px); filter: blur(8px); }
+            0%, 35% { opacity: 0; transform: translateY(5px); }
+            50% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-5px); }
         }
         @keyframes float-slow {
             0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.15; }
@@ -59,8 +59,8 @@
             0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
             50% { transform: translate(-12px, 10px) rotate(-8deg); opacity: 0.25; }
         }
-        .animate-brand { animation: aurora-brand-sequence 7s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
-        .animate-content { animation: content-welcome-sequence 7s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+        .animate-brand { animation: aurora-brand-sequence 7s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; will-change: opacity, transform; }
+        .animate-content { animation: content-welcome-sequence 7s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; will-change: opacity, transform; }
         .animate-float-1 { animation: float-slow 12s ease-in-out infinite; }
         .animate-float-2 { animation: float-medium 15s ease-in-out infinite; }
         .animate-float-3 { animation: float-slow 10s ease-in-out infinite reverse; }
