@@ -295,6 +295,44 @@ function animateJaggedGraphs() {
 
 // UI Interaction Logic
 document.addEventListener('DOMContentLoaded', () => {
+  // Handle Splash Sequence
+  const splashOverlay = document.getElementById('splash-overlay');
+  const splash1 = document.getElementById('splash-screen-1');
+  const splash2 = document.getElementById('splash-screen-2');
+  const splashGreeting = document.getElementById('splash-greeting');
+
+  if (splashOverlay) {
+      // Set dynamic greeting
+      const hour = new Date().getHours();
+      let greeting = 'Good Evening';
+      if (hour < 12) greeting = 'Good Morning';
+      else if (hour < 17) greeting = 'Good Afternoon';
+      splashGreeting.textContent = greeting;
+
+      // Sequence Timers
+      // At 1.5s: Fade out Screen 1, Fade in Screen 2
+      setTimeout(() => {
+          splash1.classList.remove('opacity-100', 'scale-100');
+          splash1.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
+          
+          splash2.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+          splash2.classList.add('opacity-100', 'scale-100');
+      }, 1500);
+
+      // At 3.5s: Fade out entire overlay
+      setTimeout(() => {
+          splashOverlay.classList.remove('opacity-100');
+          splashOverlay.classList.add('opacity-0', 'pointer-events-none');
+      }, 3500);
+
+      // At 4.5s: Remove overlay from DOM entirely to free memory
+      setTimeout(() => {
+          splashOverlay.remove();
+      }, 4500);
+  }
+
+  fetchInitialRates();
+  requestAnimationFrame(animateJaggedGraphs);
     const tabGold = document.getElementById('tab-gold');
     const tabSilver = document.getElementById('tab-silver');
     const tabIndicator = document.getElementById('tab-indicator');
