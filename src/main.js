@@ -190,8 +190,11 @@ function generateDiagonalSplinePath(history, time = 0) {
     // Base diagonal Y travels from 100 (at x=50) to 50 (at x=100)
     let diagonal_y = 100 - (x - 50);
     
-    // Subtle data perturbation and very gentle, slow graph flutter
-    let y = diagonal_y - (normalized * 10) + (Math.sin(time + x * 0.1) * 1.0);
+    // Multi-frequency noise to simulate irregular financial chart spikes (big crests and troughs)
+    let noise = Math.sin(time * 1.5 + x * 0.3) * 6 + Math.cos(time * 0.9 + x * 0.7) * 4;
+    
+    // Subtle data perturbation and the large irregular graph noise
+    let y = diagonal_y - (normalized * 10) + noise;
     
     return { x, y };
   });
