@@ -199,18 +199,19 @@ function formatPriceDecimal(value) {
       else if (hour < 17) greeting = 'Good Afternoon';
       splashGreeting.innerHTML = `${greeting}<br/><span class="text-4xl sm:text-5xl lg:text-6xl text-brand-blue/90 font-premium tracking-widest drop-shadow-sm mt-2 block">SSR Bullion</span>`;
 
-      // Sequence Timers (Aligning with 5-second CSS Keyframes)
-      // The CSS animations automatically fade the elements out entirely by 5.0s (100% of 5s).
-      // We start fading the master background at 4.3s to crossfade smoothly with the text dissolving.
+      // Sequence Timers (Aligning with 7-second CSS Keyframes)
+      // The CSS animations fade out elements entirely by 7.0s (100% of 7s).
+      // We start fading the master background at 5.5s (approx 78%) to crossfade seamlessly with the text.
       setTimeout(() => {
-          splashOverlay.classList.remove('opacity-100', 'duration-1000');
-          splashOverlay.classList.add('opacity-0', 'pointer-events-none', 'duration-700');
-      }, 4300);
+          splashOverlay.style.transitionDuration = '1.5s';
+          splashOverlay.classList.remove('opacity-100');
+          splashOverlay.classList.add('opacity-0', 'pointer-events-none');
+      }, 5500);
 
-      // Remove the DOM overlay entirely at 5.2s (after 4.3s + 700ms fade finishes)
+      // Remove the DOM overlay entirely at 7.2s (after 5.5s + 1.5s fade finishes, plus tiny buffer)
       setTimeout(() => {
           splashOverlay.remove();
-      }, 5200);
+      }, 7200);
   }
 
 
