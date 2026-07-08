@@ -203,8 +203,8 @@ function updateJaggedGraph(item, history) {
     
     // x goes from 0 to 100
     const x = i * (100 / (dataPoints.length - 1));
-    // y goes from 60 (bottom) to 20 (top) to keep it centered in viewBox 100 80
-    const y = 60 - (normalized * 40);
+    // y goes from 90 (bottom) to 40 (top) to keep it in the bottom half of viewBox 100 100
+    const y = 90 - (normalized * 50);
     return { x, y };
   });
 
@@ -260,8 +260,8 @@ function animateJaggedGraphs() {
             dPath += ` L ${currentPoints[i].x.toFixed(1)} ${currentPoints[i].y.toFixed(1)}`;
         }
         
-        // Fill path extended safely to bottom of 80px viewBox
-        const fillPath = `${dPath} L 100 120 L 0 120 Z`;
+        // Fill path extended safely to bottom of 100px viewBox
+        const fillPath = `${dPath} L 100 100 L 0 100 Z`;
         
         pathEl.setAttribute('d', dPath);
         pathEl.setAttribute('stroke', state.trendColor);
