@@ -239,8 +239,8 @@ function handleRow(row){
   if (dbItem === 'gold_995_100gms') {
       const baseNumber = calculateBaseNumber(row.price);
       
-      // Calculate 1 KG 24K (which is just 100gms * 10)
-      const kgPrice = Number(row.price) * 10;
+      // Calculate 1 KG 24K (which is 100gms price - 50)
+      const kgPrice = Number(row.price) - 50;
       handleRow({ item: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at });
       
       // Calculate the derived Karats (which are per 10g, so we divide by 10)
