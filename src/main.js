@@ -32,14 +32,12 @@ const derivedGoldItems = [
 
 function calculateBaseNumber(price24k) {
     const rawBase = (parseFloat(price24k) * 100 / 103 / 99.50) * 100;
-    const withoutDecimals = Math.trunc(rawBase);
-    return Math.round(withoutDecimals / 100) * 100; 
+    return Math.round(rawBase); 
 }
 
 function calculateDerivedPrice(baseNumber, multiplier) {
     const raw = baseNumber * multiplier;
-    const withoutDecimals = Math.trunc(raw);
-    return Math.round(withoutDecimals / 100) * 100; 
+    return Math.round(raw); 
 }
 
 /* ---------- Card catalog — order matches what you asked for ---------- */
@@ -191,7 +189,16 @@ function updateCard(cfg){
   const hist = s.history;
   if (!hist.length) return;
   const last = hist[hist.length - 1];
-  const prev = hist.length > 1 ? hist[hist.length - 2] : last;
+  
+  // Find the last different price in history to check direction
+  let prev = last;
+  for (let i = hist.length - 2; i >= 0; i--) {
+      if (hist[i] !== last) {
+          prev = hist[i];
+          break;
+      }
+  }
+
   const first = hist[0];
   const change = first ? ((last - first) / first) * 100 : 0;
 
