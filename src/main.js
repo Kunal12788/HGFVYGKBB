@@ -245,10 +245,15 @@ function updateCard(cfg){
     s.shown = last;
   }
 
-  priceEl.classList.remove('up', 'down', 'neutral');
-  if (last > prev) priceEl.classList.add('up');
-  else if (last < prev) priceEl.classList.add('down');
-  else priceEl.classList.add('neutral');
+  if (isInitialLoading) {
+    priceEl.classList.remove('up', 'down');
+    priceEl.classList.add('neutral');
+  } else if (last !== prev) {
+    priceEl.classList.remove('up', 'down', 'neutral');
+    void priceEl.offsetWidth; // Force reflow to restart animation
+    if (last > prev) priceEl.classList.add('up');
+    else if (last < prev) priceEl.classList.add('down');
+  }
 
   const deltaEl = document.getElementById('delta-' + cfg.id);
   deltaEl.textContent = (change > 0 ? '+' : '') + change.toFixed(2) + '%';

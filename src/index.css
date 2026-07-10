@@ -214,11 +214,13 @@
   .card-divider{ height:1px; background: linear-gradient(90deg, var(--hairline-soft), var(--hairline) 45%, var(--hairline-soft)); margin: 4px 0 14px; }
 
   .price-row{ display:flex; align-items:baseline; gap:10px; margin: 0 0 10px; flex-wrap:wrap; }
-  .price{ font-family:'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; font-size: clamp(26px, 3.4vw, 34px); font-weight:600; letter-spacing: -0.01em; color: var(--ivory); transition: color .3s ease; }
+  .price{ font-family:'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; font-size: clamp(26px, 3.4vw, 34px); font-weight:600; letter-spacing: -0.01em; color: var(--ivory); }
   .price .currency{ font-size: 0.5em; color: var(--muted); margin-right:3px; font-weight:500; }
-  .price.up{ color: var(--up); }
-  .price.down{ color: var(--down); }
-  .price.neutral{ color: #ffffff !important; }
+  @keyframes fade-out-up { 0%, 20% { color: var(--up); } 100% { color: #ffffff; } }
+  @keyframes fade-out-down { 0%, 20% { color: var(--down); } 100% { color: #ffffff; } }
+  .price.up { animation: fade-out-up 3s forwards; }
+  .price.down { animation: fade-out-down 3s forwards; }
+  .price.neutral { color: #ffffff !important; }
   .price-unit{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); font-weight:500; }
   .card-small .price-unit{ font-size: 10px; }
   .name-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
