@@ -317,12 +317,34 @@ function handleRow(row){
 
 let globalSupabase = null;
 
+function setMarketActiveState(isActive) {
+  const overlay = document.getElementById('marketClosedOverlay');
+  if (overlay) {
+    if (isActive) {
+      overlay.classList.add('hidden');
+    } else {
+      overlay.classList.remove('hidden');
+    }
+  }
+}
+
 /* ---------- Live mode ---------- */
 async function goLive(){
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   globalSupabase = client;
   els.feedDot.className = 'status-dot';
   els.feedText.textContent = 'Loading…';
+
+  // Fetch initial market active state
+  const { data: settings } = await client
+    .from('bullion_settings')
+    .select('is_active')
+    .eq('id', 1)
+    .single();
+    
+  if (settings) {
+    setMarketActiveState(settings.is_active);
+  }
 
   const { data, error } = await client
     .from(TABLE_NAME).select('*').order('created_at', { ascending: false }).limit(400);
@@ -337,10 +359,20 @@ async function goLive(){
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
 
+  // Listen to rates
   client.channel('bullion-rates-stream')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE_NAME }, payload => {
         if (payload && payload.new) {
             handleRow(payload.new);
+        }
+    })
+    .subscribe();
+
+  // Listen to Market Closed toggle
+  client.channel('market-closed-stream')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
+        if (payload && payload.new) {
+            setMarketActiveState(payload.new.is_active);
         }
     })
     .subscribe();
