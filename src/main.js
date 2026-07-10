@@ -67,8 +67,9 @@ const KARAT_COLOR = {
   'silver-999-3kg':   ['#f2f4f6','#9aa2ab'],
 };
 
+let isInitialLoading = false;
 const state = {};
-CARDS.forEach(c => state[c.id] = { history: [], shown: c.base, lastTs: null, base: c.base, jitter: c.jitter });
+CARDS.forEach(c => state[c.id] = { history: [], shown: c.base, lastTs: null, base: c.base, jitter: c.jitter, animFrame: null });
 
 const els = {
   marketDot: document.getElementById('marketDot'),
@@ -160,16 +161,21 @@ function buildCard(cfg){
 }
 CARDS.forEach(buildCard);
 
-function animateNumber(el, from, to, duration=500){
+function animateNumber(el, from, to, stateObj, duration=500){
+  if (stateObj.animFrame) cancelAnimationFrame(stateObj.animFrame);
   const start = performance.now();
   const ease = t => 1 - Math.pow(1 - t, 3);
   function frame(now){
     const t = Math.min(1, (now - start) / duration);
     const val = from + (to - from) * ease(t);
     el.innerHTML = `<span class="currency">₹</span>${fmtINR(Math.round(val))}`;
-    if (t < 1) requestAnimationFrame(frame);
+    if (t < 1) {
+      stateObj.animFrame = requestAnimationFrame(frame);
+    } else {
+      stateObj.animFrame = null;
+    }
   }
-  requestAnimationFrame(frame);
+  stateObj.animFrame = requestAnimationFrame(frame);
 }
 function drawSpark(svg, values, color){
   if (!svg || values.length < 2) { if(svg) svg.innerHTML=''; return; }
@@ -235,8 +241,17 @@ function updateCard(cfg){
   const change = first ? ((last - first) / first) * 100 : 0;
 
   const priceEl = document.getElementById('price-' + cfg.id);
-  animateNumber(priceEl, s.shown, last);
-  s.shown = last;
+  if (isInitialLoading) {
+    priceEl.innerHTML = `<span class="currency">₹</span>${fmtINR(last)}`;
+    s.shown = last;
+    if (s.animFrame) {
+      cancelAnimationFrame(s.animFrame);
+      s.animFrame = null;
+    }
+  } else {
+    animateNumber(priceEl, s.shown, last, s);
+    s.shown = last;
+  }
 
   priceEl.classList.remove('up', 'down', 'neutral');
   if (last > prev) priceEl.classList.add('up');
@@ -256,7 +271,9 @@ function updateCard(cfg){
     const color = cfg.metal === 'gold' ? '#e3b64f' : '#c7cdd3';
     drawSpark(document.getElementById('spark-' + cfg.id), hist.slice(-24), color);
   }
-  flashSheen(cfg.id);
+  if (!isInitialLoading) {
+    flashSheen(cfg.id);
+  }
   updateTicker(cfg, last, change);
 }
 
@@ -313,7 +330,9 @@ async function goLive(){
   if (error) throw error;
   if (!data || data.length === 0) throw new Error("Empty database response");
 
+  isInitialLoading = true;
   data.reverse().forEach(handleRow);
+  isInitialLoading = false;
 
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
