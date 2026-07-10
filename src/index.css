@@ -538,7 +538,7 @@
   /* ---------- Services screen ---------- */
   .services-container {
     display: flex; flex-direction: column; gap: 14px;
-    padding-bottom: 20px;
+    padding-bottom: 100px;
   }
   .service-card {
     background: linear-gradient(160deg, var(--paper-raised), var(--paper) 60%);
