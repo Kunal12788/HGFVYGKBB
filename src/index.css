@@ -535,20 +535,42 @@
   .profile-menu-item svg{ width:17px; height:17px; color: var(--brass-1); flex:none; }
   .profile-menu-item .chev{ margin-left:auto; color: var(--muted); width:14px; height:14px; }
 
-  /* ---------- Services screen (content owned by a separate module) ---------- */
-  #services-root{ min-height: 200px; }
-  .services-placeholder{
-    max-width: 420px; margin: 40px auto 0; text-align:center;
-    padding: 36px 24px; border: 1px dashed var(--hairline);
-    border-radius: 16px; background: var(--paper-raised);
+  /* ---------- Services screen ---------- */
+  .services-container {
+    display: flex; flex-direction: column; gap: 14px;
+    padding-bottom: 20px;
   }
-  .services-placeholder svg{ width:26px; height:26px; color: var(--brass-1); margin-bottom:10px; }
-  .services-placeholder p{
-    margin:0 0 6px; color: var(--ivory); font-weight:600;
-    font-family:'IBM Plex Mono', monospace; font-size: 13px; letter-spacing:0.04em;
+  .service-card {
+    background: linear-gradient(160deg, var(--paper-raised), var(--paper) 60%);
+    border: 1px solid var(--hairline); border-radius: 16px; padding: 18px;
+    box-shadow: 0 10px 30px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.035);
   }
-  .services-placeholder span{
-    font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted);
+  .service-header {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;
   }
+  .service-name {
+    font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--ivory); margin: 0 0 4px;
+  }
+  .service-type {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--brass-1); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+  }
+  .service-details {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .service-actions {
+    display: flex; gap: 10px;
+  }
+  .service-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .2s;
+  }
+  .service-btn.call {
+    background: var(--paper); border: 1px solid var(--hairline); color: var(--ivory);
+  }
+  .service-btn.call:hover { border-color: var(--brass-2); color: var(--brass-1); }
+  .service-btn.whatsapp {
+    background: linear-gradient(135deg, var(--emerald-1), #2a5942); color: var(--ink); border: none;
+  }
+  .service-btn svg { width: 16px; height: 16px; }
   .profile-menu-item.danger{ color: var(--down); }
   .profile-menu-item.danger svg{ color: var(--down); }

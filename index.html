@@ -260,17 +260,16 @@
     <button class="back-btn" data-nav="markets" aria-label="Back">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <h2>Services</h2>
+    <h2>Services Directory</h2>
   </div>
+  
+  <p style="text-align:center; color:var(--muted); font-size:12px; margin-bottom: 20px; font-family:'IBM Plex Mono', monospace;">
+    Connect with our trusted partners for specialized bullion services.
+  </p>
 
-  <!-- Mount point for the separate "controlled frontend" module.
-       That module owns everything rendered inside this container —
-       this shell only provides the placeholder shown until it mounts. -->
-  <div id="services-root" data-mount="controlled-frontend" data-mount-status="pending">
-    <div class="services-placeholder" id="servicesPlaceholder">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.3l-4.8 2.6.9-5.4L4.2 7.7l5.4-.8z"/></svg>
-      <p>Services content loads here</p>
-      <span>This section is rendered by a separate module</span>
+  <div id="servicesContainer" class="services-container">
+    <div style="text-align:center; padding:40px 20px; color:var(--muted); font-family:'IBM Plex Mono', monospace; font-size:12px;">
+      Loading services...
     </div>
   </div>
 </div>

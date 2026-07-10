@@ -315,9 +315,12 @@ function handleRow(row){
   }
 }
 
+let globalSupabase = null;
+
 /* ---------- Live mode ---------- */
 async function goLive(){
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  globalSupabase = client;
   els.feedDot.className = 'status-dot';
   els.feedText.textContent = 'Loading…';
 
@@ -425,6 +428,62 @@ function showScreen(name){
   });
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.nav === name));
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  
+  if (name === 'services') {
+    loadServices();
+  }
+}
+
+async function loadServices() {
+  const container = document.getElementById('servicesContainer');
+  if (!container || !globalSupabase) return;
+
+  try {
+    const { data, error } = await globalSupabase
+      .from('services_directory')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    if (!data || data.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--muted); font-family:'IBM Plex Mono', monospace; font-size:12px;">No services currently available.</div>`;
+      return;
+    }
+
+    let html = '';
+    data.forEach(service => {
+      // Remove any non-numeric characters for the href tel/wa links
+      const cleanNum = service.mobile_number.replace(/\\D/g, '');
+      
+      html += `
+        <div class="service-card">
+          <div class="service-header">
+            <h3 class="service-name">\${service.name}</h3>
+            <span class="service-type">\${service.work_type}</span>
+          </div>
+          <div class="service-details">
+            <span>📍 \${service.address}</span>
+            <span>📞 \${service.mobile_number}</span>
+          </div>
+          <div class="service-actions">
+            <a href="tel:+\${cleanNum}" class="service-btn call">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call
+            </a>
+            <a href="https://wa.me/\${cleanNum}" target="_blank" class="service-btn whatsapp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  } catch (err) {
+    console.error("Error loading services:", err);
+    container.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--down); font-family:'IBM Plex Mono', monospace; font-size:12px;">Failed to load services.</div>`;
+  }
 }
 
 document.getElementById('bottomNav')?.addEventListener('click', (e) => {
