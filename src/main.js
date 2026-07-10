@@ -322,8 +322,10 @@ function setMarketActiveState(isActive) {
   if (overlay) {
     if (isActive) {
       overlay.classList.add('hidden');
+      document.body.classList.remove('no-scroll');
     } else {
       overlay.classList.remove('hidden');
+      document.body.classList.add('no-scroll');
     }
   }
 }

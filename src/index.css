@@ -579,7 +579,7 @@
   .market-closed-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(6, 6, 7, 0.98);
+    background: rgba(6, 6, 7, 0.7);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     z-index: 9999;
@@ -623,4 +623,19 @@
     color: var(--muted);
     line-height: 1.5;
     margin: 0;
+  }
+
+  /* Lock body scroll and blur background when market is closed */
+  body.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+
+  body.no-scroll .screen,
+  body.no-scroll .bottom-nav {
+    filter: blur(25px) !important;
+    pointer-events: none !important;
+    transition: filter 0.3s ease;
   }
