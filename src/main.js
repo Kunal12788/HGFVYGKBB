@@ -229,6 +229,7 @@ function updateCard(cfg){
 }
 
 function handleRow(row){
+  if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
   const dbItem = row.item || row.product_key;
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
@@ -276,15 +277,21 @@ async function goLive(){
 
   const { data, error } = await client
     .from(TABLE_NAME).select('*').order('created_at', { ascending: false }).limit(400);
-  if (!error && data) {
-    data.reverse().forEach(handleRow);
-  }
+    
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error("Empty database response");
+
+  data.reverse().forEach(handleRow);
 
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
 
   client.channel('bullion-rates-stream')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE_NAME }, payload => handleRow(payload.new))
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE_NAME }, payload => {
+        if (payload && payload.new) {
+            handleRow(payload.new);
+        }
+    })
     .subscribe();
 }
 
