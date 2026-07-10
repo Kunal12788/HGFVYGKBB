@@ -436,7 +436,12 @@ function showScreen(name){
 
 async function loadServices() {
   const container = document.getElementById('servicesContainer');
-  if (!container || !globalSupabase) return;
+  if (!container) return;
+  
+  if (!globalSupabase) {
+    container.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--muted); font-family:'IBM Plex Mono', monospace; font-size:12px;">Database connection not established.</div>`;
+    return;
+  }
 
   try {
     const { data, error } = await globalSupabase
