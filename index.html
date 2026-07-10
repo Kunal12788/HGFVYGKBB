@@ -154,17 +154,18 @@
         <button class="metal-btn" data-dir="reverse">Value → Rate</button>
       </div>
 
-      <div class="calc-field">
-        <label>GST</label>
-        <div class="metal-toggle" id="gstModeToggle">
-          <button class="metal-btn active" data-gst="add">Add GST</button>
-          <button class="metal-btn" data-gst="deduct">Deduct GST</button>
+      <div class="calc-row">
+        <div class="calc-field">
+          <label>GST</label>
+          <div class="metal-toggle" id="gstModeToggle" style="margin-bottom:0; height:38px;">
+            <button class="metal-btn active" data-gst="add">Add</button>
+            <button class="metal-btn" data-gst="deduct">Deduct</button>
+          </div>
         </div>
-      </div>
-
-      <div class="calc-field">
-        <label>GST %</label>
-        <input type="number" id="gstPercent" placeholder="e.g. 3" min="0" step="0.01" value="3" />
+        <div class="calc-field">
+          <label>GST %</label>
+          <input type="number" id="gstPercent" placeholder="e.g. 3" min="0" step="0.01" value="3" />
+        </div>
       </div>
 
       <!-- FORWARD: price/10g + weight -> total value -->
