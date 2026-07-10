@@ -217,13 +217,14 @@ function updateCard(cfg){
 }
 
 function handleRow(row){
-  const key = PRODUCT_KEY_MAP[row.product_key] || row.product_key;
+  const dbItem = row.item || row.product_key;
+  const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
   const cfg = CARDS.find(c => c.id === key);
   
   if (!s || !cfg) {
-      // If we don't have a state for it natively, maybe it's the raw product key waiting to be derived
-      if (row.product_key === 'gold_995_100gms' || row.product_key === 'silver_999_1kg') {
+      // If we don't have a state for it natively, maybe it's the raw item waiting to be derived
+      if (dbItem === 'gold_995_100gms' || dbItem === 'silver_999_1kg') {
           // Proceed to logic magic below
       } else {
           return;
@@ -235,23 +236,23 @@ function handleRow(row){
   }
 
   // Derived Logic Magic
-  if (row.product_key === 'gold_995_100gms') {
+  if (dbItem === 'gold_995_100gms') {
       const baseNumber = calculateBaseNumber(row.price);
       
       // Calculate 1 KG 24K (which is just 100gms * 10)
       const kgPrice = Number(row.price) * 10;
-      handleRow({ product_key: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at });
+      handleRow({ item: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at });
       
       // Calculate the derived Karats (which are per 10g, so we divide by 10)
       derivedGoldItems.forEach(derived => {
           const finalPrice = calculateDerivedPrice(baseNumber, derived.multiplier) / 10;
-          handleRow({ product_key: derived.id, price: finalPrice, created_at: row.created_at });
+          handleRow({ item: derived.id, price: finalPrice, created_at: row.created_at });
       });
   }
 
-  if (row.product_key === 'silver_999_1kg') {
+  if (dbItem === 'silver_999_1kg') {
       const derivedId = 'silver-999-3kg';
-      handleRow({ product_key: derivedId, price: Number(row.price) - 200, created_at: row.created_at });
+      handleRow({ item: derivedId, price: Number(row.price) - 200, created_at: row.created_at });
   }
 }
 
