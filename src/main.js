@@ -192,19 +192,24 @@ function updateCard(cfg){
   if (!hist.length) return;
   const last = hist[hist.length - 1];
   const prev = hist.length > 1 ? hist[hist.length - 2] : last;
-  const change = prev ? ((last - prev) / prev) * 100 : 0;
+  const first = hist[0];
+  const change = first ? ((last - first) / first) * 100 : 0;
 
   const priceEl = document.getElementById('price-' + cfg.id);
   animateNumber(priceEl, s.shown, last);
   s.shown = last;
 
-  priceEl.classList.remove('up', 'down');
+  priceEl.classList.remove('up', 'down', 'neutral');
   if (last > prev) priceEl.classList.add('up');
   else if (last < prev) priceEl.classList.add('down');
+  else priceEl.classList.add('neutral');
 
   const deltaEl = document.getElementById('delta-' + cfg.id);
-  deltaEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-  deltaEl.className = 'delta ' + (change >= 0 ? 'up' : 'down');
+  deltaEl.textContent = (change > 0 ? '+' : '') + change.toFixed(2) + '%';
+  deltaEl.classList.remove('up', 'down', 'neutral');
+  if (change > 0) deltaEl.classList.add('up');
+  else if (change < 0) deltaEl.classList.add('down');
+  else deltaEl.classList.add('neutral');
 
   document.getElementById('updated-' + cfg.id).textContent = 'updated ' + timeAgo(s.lastTs || Date.now());
 
@@ -263,8 +268,10 @@ async function goLive(){
   els.feedText.textContent = 'Loading…';
 
   const { data, error } = await client
-    .from(TABLE_NAME).select('*').order('created_at', { ascending: true }).limit(400);
-  if (!error && data) data.forEach(handleRow);
+    .from(TABLE_NAME).select('*').order('created_at', { ascending: false }).limit(400);
+  if (!error && data) {
+    data.reverse().forEach(handleRow);
+  }
 
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
