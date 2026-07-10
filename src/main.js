@@ -227,15 +227,7 @@ function updateCard(cfg){
   const hist = s.history;
   if (!hist.length) return;
   const last = hist[hist.length - 1];
-  
-  // Find the last different price in history to check direction
-  let prev = last;
-  for (let i = hist.length - 2; i >= 0; i--) {
-      if (hist[i] !== last) {
-          prev = hist[i];
-          break;
-      }
-  }
+  const prev = hist.length > 1 ? hist[hist.length - 2] : last;
 
   const first = hist[0];
   const change = first ? ((last - first) / first) * 100 : 0;
