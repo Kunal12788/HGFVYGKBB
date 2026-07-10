@@ -156,7 +156,7 @@
   .ticker::before, .ticker::after{ content:''; position:absolute; top:0; bottom:0; width:70px; z-index:2; }
   .ticker::before{ left:0; background: linear-gradient(90deg, var(--ink), transparent); }
   .ticker::after{ right:0; background: linear-gradient(270deg, var(--ink), transparent); }
-  .ticker-track{ display:flex; gap:26px; white-space:nowrap; animation: scroll-left 38s linear infinite; width: max-content; }
+  .ticker-track{ display:flex; gap:26px; white-space:nowrap; animation: scroll-left 60s linear infinite; width: max-content; }
   .ticker:hover .ticker-track{ animation-play-state: paused; }
   @keyframes scroll-left{ from{ transform: translateX(0); } to{ transform: translateX(-50%); } }
   .tick-item{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); display:flex; align-items:center; gap:8px; }

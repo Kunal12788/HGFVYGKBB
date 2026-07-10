@@ -79,6 +79,28 @@ const els = {
   tickerTrack: document.getElementById('tickerTrack'),
 };
 
+function buildTicker(){
+  if (!els.tickerTrack) return;
+  els.tickerTrack.innerHTML = '';
+  // Build first set
+  CARDS.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = 'tick-item';
+    el.id = 'tick-' + cfg.id;
+    el.innerHTML = `<span class="tick-sep">◆</span><b>${cfg.name.toUpperCase()}</b> <span class="price-val">—</span> <span class="chg">—</span>`;
+    els.tickerTrack.appendChild(el);
+  });
+  // Build duplicate set for seamless infinite scroll
+  CARDS.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = 'tick-item';
+    el.id = 'tick-dup-' + cfg.id;
+    el.innerHTML = `<span class="tick-sep">◆</span><b>${cfg.name.toUpperCase()}</b> <span class="price-val">—</span> <span class="chg">—</span>`;
+    els.tickerTrack.appendChild(el);
+  });
+}
+buildTicker();
+
 function fmtINR(n){ return Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
 function timeAgo(ts){
   const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
@@ -173,15 +195,25 @@ function flashSheen(id){
   void root.offsetWidth;
   root.classList.add('sheen');
 }
-function pushTicker(label, price, change){
-  const el = document.createElement('div');
-  el.className = 'tick-item';
-  const cls = change >= 0 ? 'up' : 'down';
-  const arrow = change >= 0 ? '▲' : '▼';
-  el.innerHTML = `<span class="tick-sep">◆</span><b>${label}</b> ₹${fmtINR(price)} <span class="chg ${cls}">${arrow} ${Math.abs(change).toFixed(2)}%</span>`;
-  els.tickerTrack.appendChild(el);
-  while (els.tickerTrack.children.length > 60) els.tickerTrack.removeChild(els.tickerTrack.firstChild);
-  if (els.tickerTrack.children.length === CARDS.length + 2) els.tickerTrack.innerHTML += els.tickerTrack.innerHTML;
+function updateTicker(cfg, price, change){
+  const cls = change > 0 ? 'up' : (change < 0 ? 'down' : 'neutral');
+  const arrow = change > 0 ? '▲' : (change < 0 ? '▼' : '');
+  const changeText = `${arrow} ${Math.abs(change).toFixed(2)}%`;
+  const priceText = `₹${fmtINR(price)}`;
+
+  const ids = ['tick-' + cfg.id, 'tick-dup-' + cfg.id];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const priceValEl = el.querySelector('.price-val');
+      if (priceValEl) priceValEl.textContent = priceText;
+      const chgEl = el.querySelector('.chg');
+      if (chgEl) {
+        chgEl.className = 'chg ' + cls;
+        chgEl.textContent = changeText;
+      }
+    }
+  });
 }
 
 function updateCard(cfg){
@@ -225,7 +257,7 @@ function updateCard(cfg){
     drawSpark(document.getElementById('spark-' + cfg.id), hist.slice(-24), color);
   }
   flashSheen(cfg.id);
-  pushTicker(cfg.name.toUpperCase() + ' ' + cfg.sub, last, change);
+  updateTicker(cfg, last, change);
 }
 
 function handleRow(row){
