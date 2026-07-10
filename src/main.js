@@ -555,5 +555,17 @@ document.getElementById('gstModeToggle')?.addEventListener('click', (e) => {
 ['gstWeightRev','gstTotalRev'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', runGstCalc);
 });
-
 runGstCalc();
+
+// =========================================================
+// START APP: Check for credentials and connect
+// =========================================================
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+  goLive().catch(err => { 
+      console.error('Supabase connection failed, falling back to demo:', err); 
+      goDemo(); 
+  });
+} else {
+  console.warn("No Supabase credentials found. Falling back to Demo mode.");
+  goDemo();
+}
