@@ -26,7 +26,22 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 3000); // give it a few seconds to register
         }
     } else {
-        console.log("[NativeBridge] Standard web browser detected. Skipping Median push initialization.");
+        console.log("[NativeBridge] Standard web browser detected. Initializing Web Push...");
+        
+        // Add OneSignal Web SDK dynamically for Desktop / Web Users
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "ce6b024e-824d-4e13-9d50-58e1f31eac03",
+                safari_web_id: "web.onesignal.auto.5694d1e9-fcaa-415d-b1f1-1ef52daca700",
+                notifyButton: { enable: true },
+            });
+        });
+        
+        const script = document.createElement("script");
+        script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+        script.defer = true;
+        document.head.appendChild(script);
     }
 });
 
@@ -52,6 +67,7 @@ window.medianOneSignalInfoCallback = function(data) {
         alert("[Debug] No oneSignalUserId in data!");
     }
 };
+
 
 /**
  * Reusable function to sync a user's ID with OneSignal for targeted push notifications.
