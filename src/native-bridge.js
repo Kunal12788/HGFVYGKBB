@@ -4,6 +4,7 @@
  * Safely bridges the gap between the standard web browser environment
  * and the Median.co Android APK wrapper for OneSignal Push Notifications.
  */
+alert("[Debug] The new native-bridge.js file successfully downloaded to your phone!");
 
 // Initialize Median push notifications safely
 document.addEventListener("DOMContentLoaded", () => {
