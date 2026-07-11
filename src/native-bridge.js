@@ -14,11 +14,39 @@ document.addEventListener("DOMContentLoaded", () => {
         // Register for push notifications via the Median JS Bridge
         if (window.median.oneSignal && window.median.oneSignal.register) {
             window.median.oneSignal.register();
+            
+            // Request the player info to trigger welcome push
+            setTimeout(() => {
+                if (window.median.onesignal && window.median.onesignal.info) {
+                    window.median.onesignal.info({'callback': 'medianOneSignalInfoCallback'});
+                }
+            }, 3000); // give it a few seconds to register
         }
     } else {
         console.log("[NativeBridge] Standard web browser detected. Skipping Median push initialization.");
     }
 });
+
+function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Evening';
+}
+
+window.medianOneSignalInfoCallback = function(data) {
+    console.log("[NativeBridge] Received OneSignal Info:", data);
+    if (data && data.oneSignalUserId) {
+        // Trigger Supabase insertion for welcome push
+        const playerId = data.oneSignalUserId;
+        const greeting = getGreeting();
+        
+        // Use a global supabase client if it exists, or dispatch a custom event
+        window.dispatchEvent(new CustomEvent('medianAppOpened', { 
+            detail: { playerId, greeting } 
+        }));
+    }
+};
 
 /**
  * Reusable function to sync a user's ID with OneSignal for targeted push notifications.

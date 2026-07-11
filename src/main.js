@@ -354,6 +354,23 @@ function setMarketActiveState(isActive, reason = 'default') {
 async function goLive(){
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   globalSupabase = client;
+  
+  // Listen for the native bridge event when the app opens
+  window.addEventListener('medianAppOpened', async (e) => {
+    if (e.detail && e.detail.playerId) {
+      console.log("[Supabase] Logging app open for user:", e.detail.playerId);
+      const { error } = await client
+        .from('app_opens')
+        .insert([{ 
+            player_id: e.detail.playerId, 
+            greeting_type: e.detail.greeting || 'Welcome' 
+        }]);
+      if (error) {
+        console.error("[Supabase] Failed to log app open:", error);
+      }
+    }
+  });
+
   els.feedDot.className = 'status-dot';
   els.feedText.textContent = 'Loading…';
 
