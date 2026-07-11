@@ -12,13 +12,14 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("[NativeBridge] Median wrapper detected! Initializing Push Notifications...");
         
         // Register for push notifications via the Median JS Bridge
-        if (window.median.oneSignal && window.median.oneSignal.register) {
-            window.median.oneSignal.register();
+        const os = window.median.onesignal || window.median.oneSignal;
+        if (os) {
+            if (os.register) os.register();
             
             // Request the player info to trigger welcome push
             setTimeout(() => {
-                if (window.median.oneSignal && window.median.oneSignal.info) {
-                    window.median.oneSignal.info({'callback': 'medianOneSignalInfoCallback'});
+                if (os.info) {
+                    os.info({'callback': 'medianOneSignalInfoCallback'});
                 }
             }, 3000); // give it a few seconds to register
         }
@@ -60,9 +61,10 @@ window.syncUserWithOneSignal = function(userId) {
         return;
     }
 
-    if (typeof window.median !== 'undefined' && window.median.oneSignal && window.median.oneSignal.setExternalUserId) {
+    const os = window.median.onesignal || window.median.oneSignal;
+    if (typeof window.median !== 'undefined' && os && os.setExternalUserId) {
         console.log(`[NativeBridge] Syncing user ${userId} with OneSignal via Median.`);
-        window.median.oneSignal.setExternalUserId({ externalUserId: String(userId) });
+        os.setExternalUserId({ externalUserId: String(userId) });
     } else {
         console.log(`[NativeBridge] Ignored syncUserWithOneSignal(${userId}) - Not running in Median Wrapper.`);
     }
