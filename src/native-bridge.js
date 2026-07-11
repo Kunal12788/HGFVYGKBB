@@ -9,6 +9,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Check if the website is running inside the Median.co Android Wrapper
     if (typeof window.median !== 'undefined') {
+        alert("[Debug] Median App Wrapper Detected!");
         console.log("[NativeBridge] Median wrapper detected! Initializing Push Notifications...");
         
         // Register for push notifications via the Median JS Bridge
