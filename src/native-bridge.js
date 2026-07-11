@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Request the player info to trigger welcome push
             setTimeout(() => {
-                if (window.median.onesignal && window.median.onesignal.info) {
-                    window.median.onesignal.info({'callback': 'medianOneSignalInfoCallback'});
+                if (window.median.oneSignal && window.median.oneSignal.info) {
+                    window.median.oneSignal.info({'callback': 'medianOneSignalInfoCallback'});
                 }
             }, 3000); // give it a few seconds to register
         }
