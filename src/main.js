@@ -317,7 +317,7 @@ function handleRow(row){
 
 let globalSupabase = null;
 
-function setMarketActiveState(isActive) {
+function setMarketActiveState(isActive, reason = 'default') {
   const overlay = document.getElementById('marketClosedOverlay');
   if (overlay) {
     if (isActive) {
@@ -326,6 +326,26 @@ function setMarketActiveState(isActive) {
     } else {
       overlay.classList.remove('hidden');
       document.body.classList.add('no-scroll');
+      
+      const iconEl = document.getElementById('marketClosedIcon');
+      const titleEl = document.getElementById('marketClosedTitle');
+      const descEl = document.getElementById('marketClosedDesc');
+      
+      if (titleEl && descEl && iconEl) {
+        if (reason === 'good_night') {
+          iconEl.innerHTML = `<span style="font-size: 48px; line-height: 1;">🌙</span>`;
+          iconEl.style.background = 'transparent';
+          iconEl.style.border = 'none';
+          titleEl.textContent = 'Good Night!';
+          descEl.textContent = 'Working hours are over. We will be back next day. Application will be live then.';
+        } else {
+          iconEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+          iconEl.style.background = 'rgba(255, 255, 255, 0.03)';
+          iconEl.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+          titleEl.textContent = 'Market Closed';
+          descEl.textContent = 'Live rate streaming is currently paused. Please check back later.';
+        }
+      }
     }
   }
 }
@@ -337,15 +357,15 @@ async function goLive(){
   els.feedDot.className = 'status-dot';
   els.feedText.textContent = 'Loading…';
 
-  // Fetch initial market active state
+  // Fetch initial market active state and reason
   const { data: settings } = await client
     .from('bullion_settings')
-    .select('is_active')
+    .select('is_active, market_closed_reason')
     .eq('id', 1)
     .single();
     
   if (settings) {
-    setMarketActiveState(settings.is_active);
+    setMarketActiveState(settings.is_active, settings.market_closed_reason);
   }
 
   const { data, error } = await client
@@ -370,11 +390,11 @@ async function goLive(){
     })
     .subscribe();
 
-  // Listen to Market Closed toggle
+  // Listen to Market Closed toggle and reason updates
   client.channel('market-closed-stream')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
         if (payload && payload.new) {
-            setMarketActiveState(payload.new.is_active);
+            setMarketActiveState(payload.new.is_active, payload.new.market_closed_reason);
         }
     })
     .subscribe();
