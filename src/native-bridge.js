@@ -8,8 +8,9 @@ alert("[Debug] The new native-bridge.js file successfully downloaded to your pho
 
 // Initialize Median push notifications safely
 function initializePush() {
+    alert("[Debug] typeof median: " + (typeof window.median) + " | typeof gonative: " + (typeof window.gonative));
     // Check if the website is running inside the Median.co Android Wrapper
-    if (typeof window.median !== 'undefined') {
+    if (typeof window.median !== 'undefined' || typeof window.gonative !== 'undefined') {
         alert("[Debug] Median App Wrapper Detected!");
         console.log("[NativeBridge] Median wrapper detected! Initializing Push Notifications...");
         
