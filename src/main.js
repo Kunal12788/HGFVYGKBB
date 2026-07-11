@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import './native-bridge.js';
 
 /*============================================================
    CONFIG — fill these in to go live. Leave SUPABASE_URL blank
