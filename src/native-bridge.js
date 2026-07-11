@@ -36,16 +36,18 @@ function getGreeting() {
 }
 
 window.medianOneSignalInfoCallback = function(data) {
+    alert("[Debug] Info Callback Fired: " + JSON.stringify(data));
     console.log("[NativeBridge] Received OneSignal Info:", data);
     if (data && data.oneSignalUserId) {
-        // Trigger Supabase insertion for welcome push
+        alert("[Debug] Found Player ID: " + data.oneSignalUserId);
         const playerId = data.oneSignalUserId;
         const greeting = getGreeting();
         
-        // Use a global supabase client if it exists, or dispatch a custom event
         window.dispatchEvent(new CustomEvent('medianAppOpened', { 
             detail: { playerId, greeting } 
         }));
+    } else {
+        alert("[Debug] No oneSignalUserId in data!");
     }
 };
 
