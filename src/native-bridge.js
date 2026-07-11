@@ -7,14 +7,10 @@ import median from 'median-js-bridge';
  * and the Median.co Android APK wrapper for OneSignal Push Notifications.
  * Now powered by the official median-js-bridge NPM package.
  */
-alert("[Debug] The NPM package version of native-bridge.js has downloaded!");
 
 function initializePush() {
-    alert("[Debug] median.isNativeApp(): " + median.isNativeApp());
-    
     // Check if the website is running inside the Median.co Android Wrapper
     if (median.isNativeApp()) {
-        alert("[Debug] Median NPM Wrapper Detected!");
         console.log("[NativeBridge] Median NPM wrapper detected! Initializing Push Notifications...");
         
         // Register for push notifications via the Median JS Bridge
@@ -59,10 +55,8 @@ function getGreeting() {
 }
 
 window.medianOneSignalInfoCallback = function(data) {
-    alert("[Debug] Info Callback Fired: " + JSON.stringify(data));
     console.log("[NativeBridge] Received OneSignal Info:", data);
     if (data && data.oneSignalUserId) {
-        alert("[Debug] Found Player ID: " + data.oneSignalUserId);
         const playerId = data.oneSignalUserId;
         const greeting = getGreeting();
         
@@ -70,7 +64,7 @@ window.medianOneSignalInfoCallback = function(data) {
             detail: { playerId, greeting } 
         }));
     } else {
-        alert("[Debug] No oneSignalUserId in data!");
+        console.warn("[NativeBridge] No oneSignalUserId in data!");
     }
 };
 
