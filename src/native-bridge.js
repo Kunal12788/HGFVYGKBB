@@ -1,31 +1,33 @@
+import median from 'median-js-bridge';
+
 /**
  * native-bridge.js
  * 
  * Safely bridges the gap between the standard web browser environment
  * and the Median.co Android APK wrapper for OneSignal Push Notifications.
+ * Now powered by the official median-js-bridge NPM package.
  */
-alert("[Debug] The new native-bridge.js file successfully downloaded to your phone!");
+alert("[Debug] The NPM package version of native-bridge.js has downloaded!");
 
-// Initialize Median push notifications safely
 function initializePush() {
-    alert("[Debug] typeof median: " + (typeof window.median) + " | typeof gonative: " + (typeof window.gonative));
+    alert("[Debug] median.isNativeApp(): " + median.isNativeApp());
+    
     // Check if the website is running inside the Median.co Android Wrapper
-    if (typeof window.median !== 'undefined' || typeof window.gonative !== 'undefined') {
-        alert("[Debug] Median App Wrapper Detected!");
-        console.log("[NativeBridge] Median wrapper detected! Initializing Push Notifications...");
+    if (median.isNativeApp()) {
+        alert("[Debug] Median NPM Wrapper Detected!");
+        console.log("[NativeBridge] Median NPM wrapper detected! Initializing Push Notifications...");
         
         // Register for push notifications via the Median JS Bridge
-        const os = window.median.onesignal || window.median.oneSignal;
-        if (os) {
-            if (os.register) os.register();
-            
-            // Request the player info to trigger welcome push
-            setTimeout(() => {
-                if (os.info) {
-                    os.info({'callback': 'medianOneSignalInfoCallback'});
-                }
-            }, 3000); // give it a few seconds to register
+        if (median.onesignal && median.onesignal.register) {
+            median.onesignal.register();
         }
+        
+        // Request the player info to trigger welcome push
+        setTimeout(() => {
+            if (median.onesignal && median.onesignal.onesignalInfo) {
+                median.onesignal.onesignalInfo({'callback': 'medianOneSignalInfoCallback'});
+            }
+        }, 3000); // give it a few seconds to register
     } else {
         console.log("[NativeBridge] Standard web browser detected. Initializing Web Push...");
         
@@ -46,12 +48,8 @@ function initializePush() {
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initializePush);
-} else {
-    initializePush();
-}
-
+// Wait for the Median bridge to be ready before initializing
+median.onReady(initializePush);
 
 function getGreeting() {
     const hour = new Date().getHours();
@@ -76,7 +74,6 @@ window.medianOneSignalInfoCallback = function(data) {
     }
 };
 
-
 /**
  * Reusable function to sync a user's ID with OneSignal for targeted push notifications.
  * Can be called from anywhere in your frontend when a user logs in.
@@ -89,10 +86,9 @@ window.syncUserWithOneSignal = function(userId) {
         return;
     }
 
-    const os = window.median.onesignal || window.median.oneSignal;
-    if (typeof window.median !== 'undefined' && os && os.setExternalUserId) {
-        console.log(`[NativeBridge] Syncing user ${userId} with OneSignal via Median.`);
-        os.setExternalUserId({ externalUserId: String(userId) });
+    if (median.isNativeApp() && median.onesignal && median.onesignal.setExternalUserId) {
+        console.log(`[NativeBridge] Syncing user ${userId} with OneSignal via Median NPM.`);
+        median.onesignal.setExternalUserId({ externalUserId: String(userId) });
     } else {
         console.log(`[NativeBridge] Ignored syncUserWithOneSignal(${userId}) - Not running in Median Wrapper.`);
     }
