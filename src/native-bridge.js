@@ -7,7 +7,7 @@
 alert("[Debug] The new native-bridge.js file successfully downloaded to your phone!");
 
 // Initialize Median push notifications safely
-document.addEventListener("DOMContentLoaded", () => {
+function initializePush() {
     // Check if the website is running inside the Median.co Android Wrapper
     if (typeof window.median !== 'undefined') {
         alert("[Debug] Median App Wrapper Detected!");
@@ -43,7 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
         script.defer = true;
         document.head.appendChild(script);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initializePush);
+} else {
+    initializePush();
+}
+
 
 function getGreeting() {
     const hour = new Date().getHours();
