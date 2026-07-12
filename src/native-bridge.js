@@ -31,7 +31,7 @@ function initializePush() {
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(async function(OneSignal) {
             await OneSignal.init({
-                appId: "ce6b024e-824d-4e13-9d50-58e1f31eac03",
+                appId: "d925fd54-84e4-4a22-8ce9-09513f73908d",
                 safari_web_id: "web.onesignal.auto.5694d1e9-fcaa-415d-b1f1-1ef52daca700",
                 notifyButton: { enable: true },
             });
