@@ -315,6 +315,12 @@
     <h2 id="marketClosedTitle">Market Closed</h2>
     <p id="marketClosedDesc">Live rate streaming is currently paused. Please check back later.</p>
   </div>
+<!-- FLOATING DEBUG CONSOLE FOR DEVICE TESTING -->
+<div id="debugConsole" style="position: fixed; bottom: 80px; left: 10px; right: 10px; background: rgba(0,0,0,0.85); color: #00ff00; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; z-index: 10000; max-height: 150px; overflow-y: auto; pointer-events: none; border: 1px solid #00ff00; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+  <div>[Debug Console]</div>
+  <div id="debugNative">Checking native app status...</div>
+  <div id="debugOneSignal">Checking OneSignal status...</div>
+  <div id="debugInfo">Checking subscription ID...</div>
 </div>
 
 <script type="module" src="/src/main.js"></script>

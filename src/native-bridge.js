@@ -8,23 +8,41 @@ import median from 'median-js-bridge';
  * Now powered by the official median-js-bridge NPM package.
  */
 
+function logDebug(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
+
 function initializePush() {
     // Check if the website is running inside the Median.co Android Wrapper
     if (median.isNativeApp()) {
+        logDebug('debugNative', 'Native wrapper: YES');
         console.log("[NativeBridge] Median NPM wrapper detected! Initializing Push Notifications...");
         
         // Register for push notifications via the Median JS Bridge
-        if (median.onesignal && median.onesignal.register) {
-            median.onesignal.register();
+        if (median.onesignal) {
+            logDebug('debugOneSignal', 'OneSignal plugin: FOUND');
+            if (median.onesignal.register) {
+                median.onesignal.register();
+                logDebug('debugOneSignal', 'OneSignal plugin: FOUND & REGISTERED');
+            } else {
+                logDebug('debugOneSignal', 'OneSignal plugin: FOUND but no register method');
+            }
+        } else {
+            logDebug('debugOneSignal', 'OneSignal plugin: NOT FOUND (undefined)');
         }
         
         // Request the player info to trigger welcome push
         setTimeout(() => {
             if (median.onesignal && median.onesignal.onesignalInfo) {
                 median.onesignal.onesignalInfo({'callback': 'medianOneSignalInfoCallback'});
+            } else {
+                logDebug('debugInfo', 'ID: Failed to query onesignalInfo (undefined)');
             }
         }, 3000); // give it a few seconds to register
     } else {
+        logDebug('debugNative', 'Native wrapper: NO (Standard browser)');
+        logDebug('debugOneSignal', 'Web Push: Initializing...');
         console.log("[NativeBridge] Standard web browser detected. Initializing Web Push...");
         
         // Add OneSignal Web SDK dynamically for Desktop / Web Users
@@ -34,6 +52,10 @@ function initializePush() {
                 appId: "d925fd54-84e4-4a22-8ce9-09513f73908d",
                 safari_web_id: "web.onesignal.auto.5694d1e9-fcaa-415d-b1f1-1ef52daca700",
                 notifyButton: { enable: true },
+            });
+            logDebug('debugOneSignal', 'Web Push: INITIALIZED');
+            OneSignal.User.PushSubscription.addEventListener("change", function(state) {
+                logDebug('debugInfo', 'Web Sub ID: ' + state.current.id);
             });
         });
         
@@ -60,10 +82,13 @@ window.medianOneSignalInfoCallback = function(data) {
         const playerId = data.oneSignalUserId;
         const greeting = getGreeting();
         
+        logDebug('debugInfo', 'ID: ' + playerId + ' (Subscribed: ' + data.oneSignalSubscribed + ')');
+        
         window.dispatchEvent(new CustomEvent('medianAppOpened', { 
             detail: { playerId, greeting } 
         }));
     } else {
+        logDebug('debugInfo', 'ID: Not Subscribed or missing in callback');
         console.warn("[NativeBridge] No oneSignalUserId in data!");
     }
 };
