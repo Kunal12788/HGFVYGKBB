@@ -27,8 +27,16 @@
   html,body{ height:100%; }
   
   /* Hide scrollbar globally but keep scroll functionality */
-  * { -ms-overflow-style: none; scrollbar-width: none; }
-  *::-webkit-scrollbar { display: none; }
+  * {
+    scrollbar-width: none !important;          /* Firefox */
+    -ms-overflow-style: none !important;       /* IE/Edge */
+  }
+  *::-webkit-scrollbar {
+    display: none !important;                  /* Chrome, Safari, Opera */
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
   body{
     margin:0;
     background: var(--ink);
