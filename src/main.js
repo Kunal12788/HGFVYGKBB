@@ -493,17 +493,55 @@ document.getElementById('splash')?.addEventListener('click', dismissSplash);
 /* ---------- Bottom nav / screen switching ---------- */
 const SCREEN_IDS = ['markets', 'calculator', 'profile', 'services'];
 
+let currentScreen = 'markets';
+let isAnimating = false;
+
 function showScreen(name){
-  if (!SCREEN_IDS.includes(name)) return; // unregistered tabs (e.g. intelligence) have no screen yet
-  SCREEN_IDS.forEach(id => {
-    document.getElementById('screen-' + id)?.classList.toggle('active', id === name);
-  });
+  if (!SCREEN_IDS.includes(name)) return;
+  if (name === currentScreen) return;
+  if (isAnimating) return;
+  
+  const oldScreen = currentScreen;
+  const oldIndex = SCREEN_IDS.indexOf(oldScreen);
+  const newIndex = SCREEN_IDS.indexOf(name);
+  
+  const direction = newIndex > oldIndex ? 'right' : 'left';
+  const outClass = direction === 'right' ? 'slide-out-left' : 'slide-out-right';
+  const inClass = direction === 'right' ? 'slide-in-right' : 'slide-in-left';
+  
+  const oldEl = document.getElementById('screen-' + oldScreen);
+  const newEl = document.getElementById('screen-' + name);
+  
+  isAnimating = true;
+  currentScreen = name;
+  
+  // Prepare new element
+  if (newEl) {
+    newEl.classList.add('active', 'animating-in', inClass);
+  }
+  
+  // Prepare old element
+  if (oldEl) {
+    oldEl.classList.add('animating-out', outClass);
+    oldEl.classList.remove('active');
+  }
+  
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.nav === name));
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   
   if (name === 'services') {
     loadServices();
   }
+  
+  setTimeout(() => {
+    if (oldEl) {
+      oldEl.classList.remove('animating-out', 'slide-out-left', 'slide-out-right');
+    }
+    if (newEl) {
+      newEl.classList.remove('animating-in', 'slide-in-right', 'slide-in-left');
+    }
+    isAnimating = false;
+  }, 350);
 }
 
 async function loadServices() {

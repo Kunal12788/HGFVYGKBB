@@ -389,6 +389,49 @@
   /* ---------- Screen switching ---------- */
   .screen{ display:none; }
   .screen.active{ display:block; }
+  
+  /* Sliding Animation Classes */
+  .screen.animating-out {
+    display: block;
+    position: absolute;
+    top: 30px;
+    left: 18px;
+    right: 18px;
+    z-index: 0;
+    pointer-events: none;
+    animation-duration: 0.35s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  .screen.animating-in {
+    z-index: 1;
+    animation-duration: 0.35s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  .slide-in-right { animation-name: slideInRight; }
+  .slide-out-left { animation-name: slideOutLeft; }
+  .slide-in-left { animation-name: slideInLeft; }
+  .slide-out-right { animation-name: slideOutRight; }
+  
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0.5; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOutLeft {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-30%); opacity: 0; }
+  }
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0.5; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(30%); opacity: 0; }
+  }
 
   .sub-header{
     display:flex; align-items:center; gap:14px;
