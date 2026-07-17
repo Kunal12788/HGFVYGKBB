@@ -283,30 +283,11 @@ function updateCard(cfg){
   }
   updateTicker(cfg, last, change);
 }
-// A simple deterministic random generator based on a seed
-function seededRandom(seed) {
-    let x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
-}
-
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
   const dbItem = row.item || row.product_key;
   
   let price = Number(row.price);
-  
-  // Apply random visual jitter if manual overrides are active
-  if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) {
-      const epoch = Math.floor(Date.now() / 5000); // 5-second synchronized block
-      const randomOffset = Math.floor(seededRandom(epoch + 1) * 26) - 5;
-      price = price + randomOffset;
-  }
-  
-  if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) {
-      const epoch = Math.floor(Date.now() / 5000); // 5-second synchronized block
-      const randomOffset = Math.floor(seededRandom(epoch + 2) * 26) - 5;
-      price = price + randomOffset;
-  }
 
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
@@ -438,9 +419,6 @@ async function goLive(){
   client.channel('bullion-rates-stream')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE_NAME }, payload => {
         if (payload && payload.new) {
-            const dbItem = payload.new.item || payload.new.product_key;
-            if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) return;
-            if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) return;
             handleRow(payload.new);
         }
     })
@@ -458,17 +436,6 @@ async function goLive(){
         }
     })
     .subscribe();
-
-  // Run a client-side interval every 1 second to apply visual price fluctuations (jitter) on 5-second synchronized boundaries
-  setInterval(() => {
-    if (!isMarketOpen) return;
-    if (settingsState.use_gold_override && settingsState.override_gold > 0) {
-      handleRow({ product_key: 'gold_995_100gms', price: settingsState.override_gold, created_at: new Date().toISOString() });
-    }
-    if (settingsState.use_silver_override && settingsState.override_silver > 0) {
-      handleRow({ product_key: 'silver_999_1kg', price: settingsState.override_silver, created_at: new Date().toISOString() });
-    }
-  }, 1000);
 }
 
 /* ---------- Demo mode ---------- */
