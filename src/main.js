@@ -292,17 +292,13 @@ function handleRow(row){
   
   // Apply random visual jitter if manual overrides are active
   if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) {
-      const offsets = [2, 5, 6, 7, 9, 15, 20];
-      const randomOffset = offsets[Math.floor(Math.random() * offsets.length)];
-      const sign = Math.random() < 0.5 ? 1 : -1;
-      price = price + (sign * randomOffset);
+      const randomOffset = Math.floor(Math.random() * 26) - 5;
+      price = price + randomOffset;
   }
   
   if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) {
-      const offsets = [2, 5, 6, 7, 9, 15, 20];
-      const randomOffset = offsets[Math.floor(Math.random() * offsets.length)];
-      const sign = Math.random() < 0.5 ? 1 : -1;
-      price = price + (sign * randomOffset);
+      const randomOffset = Math.floor(Math.random() * 26) - 5;
+      price = price + randomOffset;
   }
 
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
