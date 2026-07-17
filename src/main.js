@@ -30,6 +30,8 @@ let settingsState = {
   override_silver: 0
 };
 
+let isMarketOpen = true;
+
 const derivedGoldItems = [
     { id: 'gold-22k-10g', multiplier: 0.955 },
     { id: 'gold-20k-10g', multiplier: 0.87 },
@@ -344,6 +346,7 @@ function handleRow(row){
 let globalSupabase = null;
 
 function setMarketActiveState(isActive, reason = 'default') {
+  isMarketOpen = isActive;
   const overlay = document.getElementById('marketClosedOverlay');
   if (overlay) {
     if (isActive) {
@@ -432,6 +435,9 @@ async function goLive(){
   client.channel('bullion-rates-stream')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE_NAME }, payload => {
         if (payload && payload.new) {
+            const dbItem = payload.new.item || payload.new.product_key;
+            if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) return;
+            if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) return;
             handleRow(payload.new);
         }
     })
@@ -449,6 +455,17 @@ async function goLive(){
         }
     })
     .subscribe();
+
+  // Run a client-side interval every 1 second to apply visual price fluctuations (jitter) if overrides are active
+  setInterval(() => {
+    if (!isMarketOpen) return;
+    if (settingsState.use_gold_override && settingsState.override_gold > 0) {
+      handleRow({ product_key: 'gold_995_100gms', price: settingsState.override_gold, created_at: new Date().toISOString() });
+    }
+    if (settingsState.use_silver_override && settingsState.override_silver > 0) {
+      handleRow({ product_key: 'silver_999_1kg', price: settingsState.override_silver, created_at: new Date().toISOString() });
+    }
+  }, 1000);
 }
 
 /* ---------- Demo mode ---------- */
