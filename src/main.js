@@ -452,7 +452,7 @@ async function goLive(){
     })
     .subscribe();
 
-  // Run a client-side interval every 3 seconds to apply visual price fluctuations (jitter) if overrides are active
+  // Run a client-side interval every 5 seconds to apply visual price fluctuations (jitter) if overrides are active
   setInterval(() => {
     if (!isMarketOpen) return;
     if (settingsState.use_gold_override && settingsState.override_gold > 0) {
@@ -461,7 +461,7 @@ async function goLive(){
     if (settingsState.use_silver_override && settingsState.override_silver > 0) {
       handleRow({ product_key: 'silver_999_1kg', price: settingsState.override_silver, created_at: new Date().toISOString() });
     }
-  }, 3000);
+  }, 5000);
 }
 
 /* ---------- Demo mode ---------- */
