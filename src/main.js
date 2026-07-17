@@ -23,6 +23,13 @@ const PRODUCT_KEY_MAP = {
   'silver_999_1kg': 'silver-999-1kg'
 };
 
+let settingsState = {
+  use_gold_override: false,
+  override_gold: 0,
+  use_silver_override: false,
+  override_silver: 0
+};
+
 const derivedGoldItems = [
     { id: 'gold-22k-10g', multiplier: 0.955 },
     { id: 'gold-20k-10g', multiplier: 0.87 },
@@ -278,6 +285,24 @@ function updateCard(cfg){
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
   const dbItem = row.item || row.product_key;
+  
+  let price = Number(row.price);
+  
+  // Apply random visual jitter if manual overrides are active
+  if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) {
+      const offsets = [2, 5, 6, 7, 9, 15, 20];
+      const randomOffset = offsets[Math.floor(Math.random() * offsets.length)];
+      const sign = Math.random() < 0.5 ? 1 : -1;
+      price = price + (sign * randomOffset);
+  }
+  
+  if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) {
+      const offsets = [2, 5, 6, 7, 9, 15, 20];
+      const randomOffset = offsets[Math.floor(Math.random() * offsets.length)];
+      const sign = Math.random() < 0.5 ? 1 : -1;
+      price = price + (sign * randomOffset);
+  }
+
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
   const cfg = CARDS.find(c => c.id === key);
@@ -290,17 +315,17 @@ function handleRow(row){
           return;
       }
   } else {
-      s.history.push(Number(row.price));
+      s.history.push(price);
       s.lastTs = row.created_at ? new Date(row.created_at).getTime() : Date.now();
       updateCard(cfg);
   }
 
   // Derived Logic Magic
   if (dbItem === 'gold_995_100gms') {
-      const baseNumber = calculateBaseNumber(row.price);
+      const baseNumber = calculateBaseNumber(price);
       
       // Calculate 1 KG 24K (which is 100gms price - 50)
-      const kgPrice = Number(row.price) - 50;
+      const kgPrice = price - 50;
       handleRow({ item: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at });
       
       // Calculate the derived Karats (which are per 10g, so we divide by 10)
@@ -312,7 +337,7 @@ function handleRow(row){
 
   if (dbItem === 'silver_999_1kg') {
       const derivedId = 'silver-999-3kg';
-      handleRow({ item: derivedId, price: Number(row.price) - 200, created_at: row.created_at });
+      handleRow({ item: derivedId, price: price - 200, created_at: row.created_at });
   }
 }
 
@@ -375,15 +400,19 @@ async function goLive(){
   els.feedDot.className = 'status-dot';
   els.feedText.textContent = 'Loading…';
 
-  // Fetch initial market active state and reason
+  // Fetch initial market active state, reason, and override settings
   const { data: settings } = await client
     .from('bullion_settings')
-    .select('is_active, market_closed_reason')
+    .select('is_active, market_closed_reason, use_gold_override, override_gold, use_silver_override, override_silver')
     .eq('id', 1)
     .single();
     
   if (settings) {
     setMarketActiveState(settings.is_active, settings.market_closed_reason);
+    settingsState.use_gold_override = !!settings.use_gold_override;
+    settingsState.override_gold = Number(settings.override_gold || 0);
+    settingsState.use_silver_override = !!settings.use_silver_override;
+    settingsState.override_silver = Number(settings.override_silver || 0);
   }
 
   const { data, error } = await client
@@ -408,11 +437,15 @@ async function goLive(){
     })
     .subscribe();
 
-  // Listen to Market Closed toggle and reason updates
+  // Listen to Market Closed toggle, reason, and override setting updates
   client.channel('market-closed-stream')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
         if (payload && payload.new) {
             setMarketActiveState(payload.new.is_active, payload.new.market_closed_reason);
+            settingsState.use_gold_override = !!payload.new.use_gold_override;
+            settingsState.override_gold = Number(payload.new.override_gold || 0);
+            settingsState.use_silver_override = !!payload.new.use_silver_override;
+            settingsState.override_silver = Number(payload.new.override_silver || 0);
         }
     })
     .subscribe();
