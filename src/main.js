@@ -283,6 +283,11 @@ function updateCard(cfg){
   }
   updateTicker(cfg, last, change);
 }
+// A simple deterministic random generator based on a seed
+function seededRandom(seed) {
+    let x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
 
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
@@ -292,12 +297,14 @@ function handleRow(row){
   
   // Apply random visual jitter if manual overrides are active
   if (dbItem === 'gold_995_100gms' && settingsState.use_gold_override) {
-      const randomOffset = Math.floor(Math.random() * 26) - 5;
+      const epoch = Math.floor(Date.now() / 5000); // 5-second synchronized block
+      const randomOffset = Math.floor(seededRandom(epoch + 1) * 26) - 5;
       price = price + randomOffset;
   }
   
   if (dbItem === 'silver_999_1kg' && settingsState.use_silver_override) {
-      const randomOffset = Math.floor(Math.random() * 26) - 5;
+      const epoch = Math.floor(Date.now() / 5000); // 5-second synchronized block
+      const randomOffset = Math.floor(seededRandom(epoch + 2) * 26) - 5;
       price = price + randomOffset;
   }
 
@@ -452,7 +459,7 @@ async function goLive(){
     })
     .subscribe();
 
-  // Run a client-side interval every 5 seconds to apply visual price fluctuations (jitter) if overrides are active
+  // Run a client-side interval every 1 second to apply visual price fluctuations (jitter) on 5-second synchronized boundaries
   setInterval(() => {
     if (!isMarketOpen) return;
     if (settingsState.use_gold_override && settingsState.override_gold > 0) {
@@ -461,7 +468,7 @@ async function goLive(){
     if (settingsState.use_silver_override && settingsState.override_silver > 0) {
       handleRow({ product_key: 'silver_999_1kg', price: settingsState.override_silver, created_at: new Date().toISOString() });
     }
-  }, 5000);
+  }, 1000);
 }
 
 /* ---------- Demo mode ---------- */
