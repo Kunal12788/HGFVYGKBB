@@ -399,9 +399,9 @@ function setAdvertisementState(showAd, adUrl) {
 
 // Attach event listener for closing ad manually (only hides it locally until the next refresh or state change)
 document.addEventListener('DOMContentLoaded', () => {
-  const closeAdBtn = document.getElementById('closeAdBtn');
-  if (closeAdBtn) {
-    closeAdBtn.addEventListener('click', () => {
+  const continueToAppBtn = document.getElementById('continueToAppBtn');
+  if (continueToAppBtn) {
+    continueToAppBtn.addEventListener('click', () => {
       document.getElementById('advertisementOverlay').classList.add('hidden');
       updateBodyScrollLock();
       document.getElementById('adMediaContainer').innerHTML = '';
