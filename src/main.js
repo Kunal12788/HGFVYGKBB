@@ -384,7 +384,35 @@ function setAdvertisementState(showAd, adUrl) {
     // Inject the media
     const isVideo = adUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
     if (isVideo) {
-      mediaContainer.innerHTML = `<video src="${adUrl}" autoplay loop playsinline></video>`;
+      const video = document.createElement('video');
+      video.src = adUrl;
+      video.loop = true;
+      video.playsInline = true;
+      video.autoplay = true;
+      
+      mediaContainer.innerHTML = '';
+      mediaContainer.appendChild(video);
+      
+      // Attempt to play automatically (with sound)
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // If the browser blocks unmuted autoplay, fallback to muted
+          video.muted = true;
+          video.play();
+          
+          // Show an unmute button overlay
+          const unmuteBtn = document.createElement('button');
+          unmuteBtn.className = 'unmute-btn';
+          unmuteBtn.innerHTML = '🔊 Tap to Unmute';
+          unmuteBtn.onclick = (e) => {
+            e.stopPropagation();
+            video.muted = false;
+            unmuteBtn.remove();
+          };
+          mediaContainer.appendChild(unmuteBtn);
+        });
+      }
     } else {
       mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
     }
