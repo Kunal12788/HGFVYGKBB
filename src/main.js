@@ -429,6 +429,9 @@ async function goLive(){
     .single();
     
   if (settings) {
+    if (settings.show_advertisement) {
+      setAdvertisementState(settings.show_advertisement, settings.advertisement_url);
+    }
     setMarketActiveState(settings.is_active, settings.market_closed_reason);
     settingsState.use_gold_override = !!settings.use_gold_override;
     settingsState.override_gold = Number(settings.override_gold || 0);
@@ -448,13 +451,6 @@ async function goLive(){
 
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
-
-  // Smooth delay for advertisement to avoid disrupting initial table render
-  if (settings && settings.show_advertisement) {
-    setTimeout(() => {
-      setAdvertisementState(settings.show_advertisement, settings.advertisement_url);
-    }, 2500);
-  }
 
   // Listen to rates
   client.channel('bullion-rates-stream')
