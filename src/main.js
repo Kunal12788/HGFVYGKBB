@@ -576,14 +576,15 @@ const TRUST_ICONS = [
   '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="M10 12l9-9M16 6l2.5-2.5M18.5 8.5L21 6"/></svg>',
 ];
 (function buildSplashIcons(){
-  const grid = document.getElementById('splashIcons');
-  if (!grid) return;
   const rows = 7, cols = 6;
   let html = '';
   for (let i = 0; i < rows * cols; i++){
     html += `<div>${TRUST_ICONS[i % TRUST_ICONS.length]}</div>`;
   }
-  grid.innerHTML = html;
+  const grid = document.getElementById('splashIcons');
+  if (grid) grid.innerHTML = html;
+  const adGrid = document.getElementById('adSplashIcons');
+  if (adGrid) adGrid.innerHTML = html;
 })();
 
 function dismissSplash(){
