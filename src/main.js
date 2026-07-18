@@ -363,6 +363,40 @@ function setMarketActiveState(isActive, reason = 'default') {
   }
 }
 
+function setAdvertisementState(showAd, adUrl) {
+  const overlay = document.getElementById('advertisementOverlay');
+  const mediaContainer = document.getElementById('adMediaContainer');
+  if (!overlay || !mediaContainer) return;
+
+  if (showAd && adUrl) {
+    // Inject the media
+    const isVideo = adUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
+    if (isVideo) {
+      mediaContainer.innerHTML = `<video src="${adUrl}" autoplay loop muted playsinline></video>`;
+    } else {
+      mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
+    }
+    overlay.classList.remove('hidden');
+    document.body.classList.add('no-scroll');
+  } else {
+    overlay.classList.add('hidden');
+    document.body.classList.remove('no-scroll');
+    mediaContainer.innerHTML = ''; // Clear out the video to stop playing
+  }
+}
+
+// Attach event listener for closing ad manually (only hides it locally until the next refresh or state change)
+document.addEventListener('DOMContentLoaded', () => {
+  const closeAdBtn = document.getElementById('closeAdBtn');
+  if (closeAdBtn) {
+    closeAdBtn.addEventListener('click', () => {
+      document.getElementById('advertisementOverlay').classList.add('hidden');
+      document.body.classList.remove('no-scroll');
+      document.getElementById('adMediaContainer').innerHTML = '';
+    });
+  }
+});
+
 /* ---------- Live mode ---------- */
 async function goLive(){
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -390,12 +424,13 @@ async function goLive(){
   // Fetch initial market active state, reason, and override settings
   const { data: settings } = await client
     .from('bullion_settings')
-    .select('is_active, market_closed_reason, use_gold_override, override_gold, use_silver_override, override_silver')
+    .select('is_active, market_closed_reason, use_gold_override, override_gold, use_silver_override, override_silver, show_advertisement, advertisement_url')
     .eq('id', 1)
     .single();
     
   if (settings) {
     setMarketActiveState(settings.is_active, settings.market_closed_reason);
+    setAdvertisementState(settings.show_advertisement, settings.advertisement_url);
     settingsState.use_gold_override = !!settings.use_gold_override;
     settingsState.override_gold = Number(settings.override_gold || 0);
     settingsState.use_silver_override = !!settings.use_silver_override;
@@ -429,6 +464,7 @@ async function goLive(){
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
         if (payload && payload.new) {
             setMarketActiveState(payload.new.is_active, payload.new.market_closed_reason);
+            setAdvertisementState(payload.new.show_advertisement, payload.new.advertisement_url);
             settingsState.use_gold_override = !!payload.new.use_gold_override;
             settingsState.override_gold = Number(payload.new.override_gold || 0);
             settingsState.use_silver_override = !!payload.new.use_silver_override;
