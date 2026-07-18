@@ -464,7 +464,6 @@ async function goLive(){
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
         if (payload && payload.new) {
             setMarketActiveState(payload.new.is_active, payload.new.market_closed_reason);
-            setAdvertisementState(payload.new.show_advertisement, payload.new.advertisement_url);
             settingsState.use_gold_override = !!payload.new.use_gold_override;
             settingsState.override_gold = Number(payload.new.override_gold || 0);
             settingsState.use_silver_override = !!payload.new.use_silver_override;
