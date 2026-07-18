@@ -746,7 +746,14 @@
 
   body.no-scroll .screen,
   body.no-scroll .bottom-nav {
-    filter: blur(25px) !important;
+    filter: blur(25px);
+    pointer-events: none;
+    transition: filter 0.3s ease, opacity 0.5s ease;
+  }
+
+  /* When advertisement is active, completely hide the live rates so it behaves as a separate screen */
+  body.ad-active .screen,
+  body.ad-active .bottom-nav {
+    opacity: 0 !important;
     pointer-events: none !important;
-    transition: filter 0.3s ease;
   }

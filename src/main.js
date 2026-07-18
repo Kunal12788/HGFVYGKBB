@@ -389,9 +389,11 @@ function setAdvertisementState(showAd, adUrl) {
       mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
     }
     overlay.classList.remove('hidden');
+    document.body.classList.add('ad-active');
     updateBodyScrollLock();
   } else {
     overlay.classList.add('hidden');
+    document.body.classList.remove('ad-active');
     updateBodyScrollLock();
     mediaContainer.innerHTML = ''; // Clear out the video to stop playing
   }
@@ -403,6 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (continueToAppBtn) {
     continueToAppBtn.addEventListener('click', () => {
       document.getElementById('advertisementOverlay').classList.add('hidden');
+      document.body.classList.remove('ad-active');
       updateBodyScrollLock();
       document.getElementById('adMediaContainer').innerHTML = '';
     });
