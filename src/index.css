@@ -369,6 +369,9 @@
     display: grid; grid-template-columns: repeat(6, 1fr);
     opacity: 0.5;
   }
+  #adSplashIcons {
+    opacity: 0.15; /* Reduced opacity specifically for the ad screen so it's very subtle */
+  }
   .splash-icons svg{
     width: 34px; height: 34px; justify-self: center; align-self: center;
     color: var(--brass-2); opacity: 0.5;
