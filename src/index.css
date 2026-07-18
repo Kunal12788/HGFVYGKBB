@@ -645,7 +645,7 @@
   .ad-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 10000;
@@ -701,6 +701,12 @@
     max-height: 80vh;
     object-fit: contain;
     display: block;
+  }
+
+  body.no-scroll {
+    overflow: hidden;
+    height: 100vh;
+    touch-action: none;
   }
 
   /* Lock body scroll and blur background when market is closed */
