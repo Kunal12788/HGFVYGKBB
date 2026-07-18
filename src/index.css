@@ -678,6 +678,8 @@
     text-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255, 223, 115, 0.4);
     letter-spacing: 1px;
     font-family: 'Fraunces', serif;
+    text-transform: uppercase;
+    line-height: 1.2;
   }
   .ad-content {
     position: relative;
