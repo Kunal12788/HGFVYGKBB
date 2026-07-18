@@ -329,16 +329,28 @@ function handleRow(row){
 
 let globalSupabase = null;
 
+function updateBodyScrollLock() {
+  const marketClosedOverlay = document.getElementById('marketClosedOverlay');
+  const adOverlay = document.getElementById('advertisementOverlay');
+  const isMarketClosed = marketClosedOverlay && !marketClosedOverlay.classList.contains('hidden');
+  const isAdVisible = adOverlay && !adOverlay.classList.contains('hidden');
+  if (isMarketClosed || isAdVisible) {
+    document.body.classList.add('no-scroll');
+  } else {
+    document.body.classList.remove('no-scroll');
+  }
+}
+
 function setMarketActiveState(isActive, reason = 'default') {
   isMarketOpen = isActive;
   const overlay = document.getElementById('marketClosedOverlay');
   if (overlay) {
     if (isActive) {
       overlay.classList.add('hidden');
-      document.body.classList.remove('no-scroll');
+      updateBodyScrollLock();
     } else {
       overlay.classList.remove('hidden');
-      document.body.classList.add('no-scroll');
+      updateBodyScrollLock();
       
       const iconEl = document.getElementById('marketClosedIcon');
       const titleEl = document.getElementById('marketClosedTitle');
@@ -377,10 +389,10 @@ function setAdvertisementState(showAd, adUrl) {
       mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
     }
     overlay.classList.remove('hidden');
-    document.body.classList.add('no-scroll');
+    updateBodyScrollLock();
   } else {
     overlay.classList.add('hidden');
-    document.body.classList.remove('no-scroll');
+    updateBodyScrollLock();
     mediaContainer.innerHTML = ''; // Clear out the video to stop playing
   }
 }
@@ -391,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeAdBtn) {
     closeAdBtn.addEventListener('click', () => {
       document.getElementById('advertisementOverlay').classList.add('hidden');
-      document.body.classList.remove('no-scroll');
+      updateBodyScrollLock();
       document.getElementById('adMediaContainer').innerHTML = '';
     });
   }
