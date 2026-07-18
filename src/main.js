@@ -384,7 +384,7 @@ function setAdvertisementState(showAd, adUrl) {
     // Inject the media
     const isVideo = adUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
     if (isVideo) {
-      mediaContainer.innerHTML = `<video src="${adUrl}" autoplay loop muted playsinline></video>`;
+      mediaContainer.innerHTML = `<video src="${adUrl}" autoplay loop playsinline></video>`;
     } else {
       mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
     }
