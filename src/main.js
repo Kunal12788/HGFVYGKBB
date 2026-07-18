@@ -442,7 +442,10 @@ async function goLive(){
     
   if (settings) {
     if (settings.show_advertisement) {
-      setAdvertisementState(settings.show_advertisement, settings.advertisement_url);
+      // Delay the initial advertisement popup by 1.5 seconds so the main app can load first
+      setTimeout(() => {
+        setAdvertisementState(settings.show_advertisement, settings.advertisement_url);
+      }, 1500);
     }
     setMarketActiveState(settings.is_active, settings.market_closed_reason);
     settingsState.use_gold_override = !!settings.use_gold_override;
