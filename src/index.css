@@ -681,6 +681,11 @@
     text-transform: uppercase;
     line-height: 1.2;
   }
+  .ad-subtitle {
+    font-size: 0.65em; /* Makes EXCLUSIVES proportionally smaller */
+    color: var(--brass-2); /* Adds a premium touch to differentiate it */
+    letter-spacing: 2px;
+  }
   .ad-content {
     position: relative;
     width: auto;
