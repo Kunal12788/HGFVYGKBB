@@ -452,18 +452,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Onboarding Form & Skip Listeners
+  // Onboarding Form Listener (Mandatory Signup)
   const obForm = document.getElementById('whatsappOnboardingForm');
-  const obSkipBtn = document.getElementById('waSkipBtn');
   const obErrDiv = document.getElementById('waFormError');
   const obSubmitBtn = document.getElementById('waSubmitBtn');
-
-  if (obSkipBtn) {
-    obSkipBtn.addEventListener('click', () => {
-      localStorage.setItem('whatsapp_onboarded', 'true');
-      closeOnboarding();
-    });
-  }
 
   if (obForm) {
     obForm.addEventListener('submit', async (e) => {
@@ -478,23 +470,35 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const name = document.getElementById('waName')?.value?.trim();
-      const phone = document.getElementById('waPhone')?.value?.trim();
+      const rawPhone = document.getElementById('waPhone')?.value?.trim().replace(/\D/g, '');
       const shop = document.getElementById('waShop')?.value?.trim();
       const address = document.getElementById('waAddress')?.value?.trim();
       const lang = document.getElementById('waLang')?.value || 'english';
 
-      if (!name || !phone) {
+      // 1. Mandatory Fields Check
+      if (!name || !rawPhone || !shop || !address) {
         if (obErrDiv) {
-          obErrDiv.textContent = 'Please provide your Full Name and WhatsApp Mobile Number.';
+          obErrDiv.textContent = 'Please fill out all mandatory fields to continue.';
           obErrDiv.classList.remove('hidden');
         }
         return;
       }
 
+      // 2. Strict 10-Digit Mobile Number Validation
+      if (!/^\d{10}$/.test(rawPhone)) {
+        if (obErrDiv) {
+          obErrDiv.textContent = 'Please enter a valid 10-digit mobile number.';
+          obErrDiv.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const formattedPhone = '+91' + rawPhone;
+
       if (obErrDiv) obErrDiv.classList.add('hidden');
       if (obSubmitBtn) {
         obSubmitBtn.disabled = true;
-        obSubmitBtn.querySelector('span').textContent = 'Subscribing...';
+        obSubmitBtn.querySelector('span').textContent = 'Submitting Details...';
       }
 
       try {
@@ -503,14 +507,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .from('pending_whatsapp_subscriptions')
             .insert([{
               contact_name: name,
-              phone_number: phone,
+              phone_number: formattedPhone,
               shop_name: shop,
               address: address,
               preferred_language: lang
             }]);
 
           if (error) {
-            console.warn('Pending subscription notice:', error);
+            console.warn('Registration notice:', error);
           }
         }
       } catch (err) {

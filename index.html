@@ -356,22 +356,25 @@
 
       <div class="input-group">
         <label for="waPhone">WhatsApp Mobile Number *</label>
-        <input type="tel" id="waPhone" placeholder="e.g. +91 98765 43210" required />
+        <div class="phone-input-wrapper">
+          <span class="phone-prefix">+91</span>
+          <input type="tel" id="waPhone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" required />
+        </div>
       </div>
 
       <div class="input-group">
-        <label for="waShop">Shop Name</label>
-        <input type="text" id="waShop" placeholder="e.g. SSR Jewellers" />
+        <label for="waShop">Shop Name *</label>
+        <input type="text" id="waShop" placeholder="e.g. SSR Jewellers" required />
       </div>
 
       <div class="input-group">
-        <label for="waAddress">City / Address</label>
-        <input type="text" id="waAddress" placeholder="e.g. Zaveri Bazaar, Mumbai" />
+        <label for="waAddress">City / Address *</label>
+        <input type="text" id="waAddress" placeholder="e.g. Zaveri Bazaar, Mumbai" required />
       </div>
 
       <div class="input-group">
-        <label for="waLang">Preferred Language</label>
-        <select id="waLang">
+        <label for="waLang">Preferred Language *</label>
+        <select id="waLang" required>
           <option value="english" selected>English</option>
           <option value="hindi">Hindi (हिंदी)</option>
           <option value="bengali">Bengali (বাংলা)</option>
@@ -382,10 +385,9 @@
 
       <div class="onboarding-actions">
         <button type="submit" id="waSubmitBtn" class="onboarding-submit-btn">
-          <span>Subscribe & Continue</span>
+          <span>Complete Registration</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
-        <button type="button" id="waSkipBtn" class="onboarding-skip-btn">Skip for Now</button>
       </div>
     </form>
   </div>

@@ -790,10 +790,11 @@
     z-index: 250;
     background: var(--ink);
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Fixes top clipping issue when scrolling on small mobile screens */
     justify-content: center;
-    padding: 20px;
+    padding: 24px 16px 40px 16px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     opacity: 1;
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -809,13 +810,14 @@
     z-index: 2;
     width: 100%;
     max-width: 440px;
-    background: rgba(18, 20, 24, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 223, 115, 0.25);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+    margin: auto 0; /* Ensures proper vertical centering while remaining fully scrollable */
+    background: rgba(18, 20, 24, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(212, 175, 55, 0.2);
     border-radius: 24px;
-    padding: 28px 24px;
+    padding: 28px 22px;
     animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
   .onboarding-header {
@@ -884,6 +886,36 @@
     font-family: 'Inter', sans-serif;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .phone-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .phone-input-wrapper:focus-within {
+    border-color: #d4af37;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  }
+  .phone-prefix {
+    background: rgba(212, 175, 55, 0.15);
+    color: #d4af37;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 14px;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    user-select: none;
+  }
+  .phone-input-wrapper input {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    flex: 1;
+    background: transparent !important;
+    padding: 12px 14px !important;
   }
   .input-group select option {
     background: #121418;
