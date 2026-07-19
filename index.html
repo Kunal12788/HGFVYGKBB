@@ -332,6 +332,65 @@
   </div>
 </div>
 
+<!-- WHATSAPP ONBOARDING OVERLAY -->
+<div id="whatsappOnboardingOverlay" class="onboarding-overlay hidden">
+  <div class="splash-icons" id="onboardingSplashIcons"></div>
+  <div class="onboarding-wrapper">
+    <div class="onboarding-header">
+      <div class="onboarding-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>VIP WhatsApp Alerts</span>
+      </div>
+      <h2>Get Live Rates on WhatsApp</h2>
+      <p>Receive instant rate change alerts directly on your phone.</p>
+    </div>
+
+    <form id="whatsappOnboardingForm" class="onboarding-form" autocomplete="off">
+      <!-- Invisible Honeypot trap to block spam bots -->
+      <input type="text" name="b_website" class="hp-trap" tabindex="-1" autocomplete="off" />
+
+      <div class="input-group">
+        <label for="waName">Full Name *</label>
+        <input type="text" id="waName" placeholder="Enter your full name" required />
+      </div>
+
+      <div class="input-group">
+        <label for="waPhone">WhatsApp Mobile Number *</label>
+        <input type="tel" id="waPhone" placeholder="e.g. +91 98765 43210" required />
+      </div>
+
+      <div class="input-group">
+        <label for="waShop">Shop Name</label>
+        <input type="text" id="waShop" placeholder="e.g. SSR Jewellers" />
+      </div>
+
+      <div class="input-group">
+        <label for="waAddress">City / Address</label>
+        <input type="text" id="waAddress" placeholder="e.g. Zaveri Bazaar, Mumbai" />
+      </div>
+
+      <div class="input-group">
+        <label for="waLang">Preferred Language</label>
+        <select id="waLang">
+          <option value="english" selected>English</option>
+          <option value="hindi">Hindi (हिंदी)</option>
+          <option value="bengali">Bengali (বাংলা)</option>
+        </select>
+      </div>
+
+      <div id="waFormError" class="onboarding-error hidden"></div>
+
+      <div class="onboarding-actions">
+        <button type="submit" id="waSubmitBtn" class="onboarding-submit-btn">
+          <span>Subscribe & Continue</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button type="button" id="waSkipBtn" class="onboarding-skip-btn">Skip for Now</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script type="module" src="/src/main.js"></script>
 
 </body>

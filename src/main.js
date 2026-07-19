@@ -18,6 +18,18 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const TABLE_NAME         = "bullion_rates";
 
+const TEMP_SUPABASE_URL = import.meta.env.VITE_TEMP_SUPABASE_URL || SUPABASE_URL;
+const TEMP_SUPABASE_ANON_KEY = import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY;
+
+let tempSupabase = null;
+if (TEMP_SUPABASE_URL && TEMP_SUPABASE_ANON_KEY) {
+  try {
+    tempSupabase = createClient(TEMP_SUPABASE_URL, TEMP_SUPABASE_ANON_KEY);
+  } catch (err) {
+    console.warn('Temp Supabase Client Init Error:', err);
+  }
+}
+
 const PRODUCT_KEY_MAP = {
   'gold_995_100gms': 'gold-24k-100g',
   'silver_999_1kg': 'silver-999-1kg'
@@ -436,6 +448,77 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('ad-active');
       updateBodyScrollLock();
       document.getElementById('adMediaContainer').innerHTML = '';
+      setTimeout(checkAndShowOnboarding, 300);
+    });
+  }
+
+  // Onboarding Form & Skip Listeners
+  const obForm = document.getElementById('whatsappOnboardingForm');
+  const obSkipBtn = document.getElementById('waSkipBtn');
+  const obErrDiv = document.getElementById('waFormError');
+  const obSubmitBtn = document.getElementById('waSubmitBtn');
+
+  if (obSkipBtn) {
+    obSkipBtn.addEventListener('click', () => {
+      localStorage.setItem('whatsapp_onboarded', 'true');
+      closeOnboarding();
+    });
+  }
+
+  if (obForm) {
+    obForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Check invisible honeypot trap
+      const hp = obForm.querySelector('.hp-trap');
+      if (hp && hp.value) {
+        localStorage.setItem('whatsapp_onboarded', 'true');
+        closeOnboarding();
+        return;
+      }
+
+      const name = document.getElementById('waName')?.value?.trim();
+      const phone = document.getElementById('waPhone')?.value?.trim();
+      const shop = document.getElementById('waShop')?.value?.trim();
+      const address = document.getElementById('waAddress')?.value?.trim();
+      const lang = document.getElementById('waLang')?.value || 'english';
+
+      if (!name || !phone) {
+        if (obErrDiv) {
+          obErrDiv.textContent = 'Please provide your Full Name and WhatsApp Mobile Number.';
+          obErrDiv.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (obErrDiv) obErrDiv.classList.add('hidden');
+      if (obSubmitBtn) {
+        obSubmitBtn.disabled = true;
+        obSubmitBtn.querySelector('span').textContent = 'Subscribing...';
+      }
+
+      try {
+        if (tempSupabase) {
+          const { error } = await tempSupabase
+            .from('pending_whatsapp_subscriptions')
+            .insert([{
+              contact_name: name,
+              phone_number: phone,
+              shop_name: shop,
+              address: address,
+              preferred_language: lang
+            }]);
+
+          if (error) {
+            console.warn('Pending subscription notice:', error);
+          }
+        }
+      } catch (err) {
+        console.error('Registration submission error:', err);
+      } finally {
+        localStorage.setItem('whatsapp_onboarded', 'true');
+        closeOnboarding();
+      }
     });
   }
 });
@@ -585,11 +668,37 @@ const TRUST_ICONS = [
   if (grid) grid.innerHTML = html;
   const adGrid = document.getElementById('adSplashIcons');
   if (adGrid) adGrid.innerHTML = html;
+  const obGrid = document.getElementById('onboardingSplashIcons');
+  if (obGrid) obGrid.innerHTML = html;
 })();
+
+function checkAndShowOnboarding() {
+  const isAdActive = document.body.classList.contains('ad-active');
+  const onboarded = localStorage.getItem('whatsapp_onboarded');
+  
+  if (!onboarded && !isAdActive) {
+    const obOverlay = document.getElementById('whatsappOnboardingOverlay');
+    if (obOverlay) {
+      obOverlay.classList.remove('hidden');
+      document.body.classList.add('onboarding-active');
+      updateBodyScrollLock();
+    }
+  }
+}
+
+function closeOnboarding() {
+  const obOverlay = document.getElementById('whatsappOnboardingOverlay');
+  if (obOverlay) {
+    obOverlay.classList.add('hidden');
+    document.body.classList.remove('onboarding-active');
+    updateBodyScrollLock();
+  }
+}
 
 function dismissSplash(){
   const splash = document.getElementById('splash');
   if (splash) splash.classList.add('hide');
+  setTimeout(checkAndShowOnboarding, 300);
 }
 window.addEventListener('load', () => { setTimeout(dismissSplash, 2000); });
 document.getElementById('splash')?.addEventListener('click', dismissSplash);
