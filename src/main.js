@@ -30,6 +30,64 @@ if (TEMP_SUPABASE_URL && TEMP_SUPABASE_ANON_KEY) {
   }
 }
 
+function detectDeviceInfo() {
+  const ua = navigator.userAgent;
+  let deviceType = 'Desktop';
+  if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
+    deviceType = /Tablet|iPad/i.test(ua) ? 'Tablet' : 'Mobile';
+  }
+
+  let os = 'Unknown OS';
+  if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  else if (/Macintosh/i.test(ua)) os = 'macOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+
+  let browser = 'Unknown Browser';
+  if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  else if (/Edg/i.test(ua)) browser = 'Edge';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+
+  return {
+    deviceType,
+    os,
+    browser,
+    screenRes: `${window.screen.width}x${window.screen.height}`
+  };
+}
+
+async function logCustomerAppOpen() {
+  const profileRaw = localStorage.getItem('customer_profile');
+  let phone = null;
+  let name = 'Guest User';
+  if (profileRaw) {
+    try {
+      const p = JSON.parse(profileRaw);
+      phone = p.phone;
+      name = p.name || name;
+    } catch (e) {}
+  }
+  if (!phone) return;
+
+  if (tempSupabase) {
+    try {
+      const info = detectDeviceInfo();
+      await tempSupabase.rpc('record_app_open_event', {
+        p_phone: phone,
+        p_name: name,
+        p_device_type: info.deviceType,
+        p_os_name: info.os,
+        p_browser_name: info.browser,
+        p_screen_res: info.screenRes
+      });
+    } catch (err) {
+      console.warn('Analytics tracking notice:', err);
+    }
+  }
+}
+
 const PRODUCT_KEY_MAP = {
   'gold_995_100gms': 'gold-24k-100g',
   'silver_999_1kg': 'silver-999-1kg'
@@ -525,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('whatsapp_onboarded', 'true');
         updateProfileUI();
         closeOnboarding();
+        logCustomerAppOpen();
       }
     });
   }
@@ -769,6 +828,7 @@ function dismissSplash(){
   const splash = document.getElementById('splash');
   if (splash) splash.classList.add('hide');
   setTimeout(checkAndShowOnboarding, 300);
+  logCustomerAppOpen();
 }
 window.addEventListener('load', () => { setTimeout(dismissSplash, 2000); });
 document.getElementById('splash')?.addEventListener('click', dismissSplash);
