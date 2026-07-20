@@ -529,30 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Edit Profile button handler
-  const editProfileBtn = document.getElementById('editProfileBtn');
-  if (editProfileBtn) {
-    editProfileBtn.addEventListener('click', () => {
-      const profileRaw = localStorage.getItem('customer_profile');
-      if (profileRaw) {
-        try {
-          const p = JSON.parse(profileRaw);
-          if (p.name) document.getElementById('waName').value = p.name;
-          if (p.phone) document.getElementById('waPhone').value = p.phone.replace('+91', '');
-          if (p.shop) document.getElementById('waShop').value = p.shop;
-          if (p.address) document.getElementById('waAddress').value = p.address;
-          if (p.lang) document.getElementById('waLang').value = p.lang;
-        } catch (e) {}
-      }
-      const obOverlay = document.getElementById('whatsappOnboardingOverlay');
-      if (obOverlay) {
-        obOverlay.classList.remove('hidden');
-        document.body.classList.add('onboarding-active');
-        updateBodyScrollLock();
-      }
-    });
-  }
-
   // Initial update of Profile Screen UI
   updateProfileUI();
 });
