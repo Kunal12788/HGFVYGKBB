@@ -32,20 +32,25 @@ if (TEMP_SUPABASE_URL && TEMP_SUPABASE_ANON_KEY) {
 
 function detectDeviceInfo() {
   const ua = navigator.userAgent;
+  const isMedian = window.median || /gonative|median/i.test(ua);
+  
   let deviceType = 'Desktop';
-  if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
+  if (isMedian) {
+    deviceType = 'Median Android APK';
+  } else if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
     deviceType = /Tablet|iPad/i.test(ua) ? 'Tablet' : 'Mobile';
   }
 
   let os = 'Unknown OS';
-  if (/Windows/i.test(ua)) os = 'Windows';
-  else if (/Android/i.test(ua)) os = 'Android';
-  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  if (/Android/i.test(ua)) os = isMedian ? 'Android (Median App)' : 'Android';
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = isMedian ? 'iOS (Median App)' : 'iOS';
+  else if (/Windows/i.test(ua)) os = 'Windows';
   else if (/Macintosh/i.test(ua)) os = 'macOS';
   else if (/Linux/i.test(ua)) os = 'Linux';
 
   let browser = 'Unknown Browser';
-  if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
+  if (isMedian) browser = 'Median APK WebView';
+  else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
   else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
   else if (/Edg/i.test(ua)) browser = 'Edge';
   else if (/Firefox/i.test(ua)) browser = 'Firefox';
@@ -60,21 +65,21 @@ function detectDeviceInfo() {
 
 async function logCustomerAppOpen() {
   const profileRaw = localStorage.getItem('customer_profile');
-  let phone = null;
+  let phone = 'GUEST_DEVICE';
   let name = 'Guest User';
   if (profileRaw) {
     try {
       const p = JSON.parse(profileRaw);
-      phone = p.phone;
-      name = p.name || name;
+      if (p.phone) phone = p.phone;
+      if (p.name) name = p.name;
     } catch (e) {}
   }
-  if (!phone) return;
 
   if (tempSupabase) {
     try {
       const info = detectDeviceInfo();
-      await tempSupabase.rpc('record_app_open_event', {
+      // Try RPC call first
+      const { error: rpcErr } = await tempSupabase.rpc('record_app_open_event', {
         p_phone: phone,
         p_name: name,
         p_device_type: info.deviceType,
@@ -82,6 +87,19 @@ async function logCustomerAppOpen() {
         p_browser_name: info.browser,
         p_screen_res: info.screenRes
       });
+
+      if (rpcErr) {
+        console.warn('RPC Analytics Notice (Falling back to direct table insert):', rpcErr);
+        // Direct table insert fallback
+        await tempSupabase.from('user_app_activity_logs').insert([{
+          phone_number: phone,
+          contact_name: name,
+          device_type: info.deviceType,
+          os_name: info.os,
+          browser_name: info.browser,
+          screen_resolution: info.screenRes
+        }]);
+      }
     } catch (err) {
       console.warn('Analytics tracking notice:', err);
     }
