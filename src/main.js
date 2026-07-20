@@ -520,12 +520,68 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         console.error('Registration submission error:', err);
       } finally {
+        const profileObj = { name, phone: formattedPhone, shop, address, lang };
+        localStorage.setItem('customer_profile', JSON.stringify(profileObj));
         localStorage.setItem('whatsapp_onboarded', 'true');
+        updateProfileUI();
         closeOnboarding();
       }
     });
   }
+
+  // Edit Profile button handler
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  if (editProfileBtn) {
+    editProfileBtn.addEventListener('click', () => {
+      const profileRaw = localStorage.getItem('customer_profile');
+      if (profileRaw) {
+        try {
+          const p = JSON.parse(profileRaw);
+          if (p.name) document.getElementById('waName').value = p.name;
+          if (p.phone) document.getElementById('waPhone').value = p.phone.replace('+91', '');
+          if (p.shop) document.getElementById('waShop').value = p.shop;
+          if (p.address) document.getElementById('waAddress').value = p.address;
+          if (p.lang) document.getElementById('waLang').value = p.lang;
+        } catch (e) {}
+      }
+      const obOverlay = document.getElementById('whatsappOnboardingOverlay');
+      if (obOverlay) {
+        obOverlay.classList.remove('hidden');
+        document.body.classList.add('onboarding-active');
+        updateBodyScrollLock();
+      }
+    });
+  }
+
+  // Initial update of Profile Screen UI
+  updateProfileUI();
 });
+
+function updateProfileUI() {
+  const profileRaw = localStorage.getItem('customer_profile');
+  const avatarEl = document.getElementById('profileAvatar');
+  const nameEl = document.getElementById('profileName');
+  const badgeEl = document.getElementById('profileBadge');
+  const phoneEl = document.getElementById('profilePhone');
+  const shopEl = document.getElementById('profileShop');
+  const addressEl = document.getElementById('profileAddress');
+  const langEl = document.getElementById('profileLang');
+
+  if (profileRaw) {
+    try {
+      const p = JSON.parse(profileRaw);
+      if (avatarEl && p.name) avatarEl.textContent = p.name.charAt(0).toUpperCase();
+      if (nameEl && p.name) nameEl.textContent = p.name;
+      if (badgeEl) badgeEl.textContent = p.shop ? p.shop : 'VIP WhatsApp Subscriber';
+      if (phoneEl && p.phone) phoneEl.textContent = p.phone;
+      if (shopEl && p.shop) shopEl.textContent = p.shop;
+      if (addressEl && p.address) addressEl.textContent = p.address;
+      if (langEl && p.lang) langEl.textContent = p.lang.charAt(0).toUpperCase() + p.lang.slice(1);
+    } catch (e) {
+      console.warn('Profile parse error:', e);
+    }
+  }
+}
 
 /* ---------- Live mode ---------- */
 async function goLive(){
