@@ -529,6 +529,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Log Out & Reset handler
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      // Clear saved profile & onboarding lock
+      localStorage.removeItem('customer_profile');
+      localStorage.removeItem('whatsapp_onboarded');
+
+      // Clear input fields in the registration form
+      const obForm = document.getElementById('whatsappOnboardingForm');
+      if (obForm) obForm.reset();
+
+      // Reset Profile UI to Guest state
+      updateProfileUI();
+
+      // Re-open mandatory registration onboarding overlay
+      const obOverlay = document.getElementById('whatsappOnboardingOverlay');
+      if (obOverlay) {
+        obOverlay.classList.remove('hidden');
+        document.body.classList.add('onboarding-active');
+        updateBodyScrollLock();
+      }
+    });
+  }
+
   // Initial update of Profile Screen UI
   updateProfileUI();
 });
@@ -556,6 +581,15 @@ function updateProfileUI() {
     } catch (e) {
       console.warn('Profile parse error:', e);
     }
+  } else {
+    // Reset to Guest User state
+    if (avatarEl) avatarEl.textContent = 'G';
+    if (nameEl) nameEl.textContent = 'Guest User';
+    if (badgeEl) badgeEl.textContent = 'Member';
+    if (phoneEl) phoneEl.textContent = 'Not added';
+    if (shopEl) shopEl.textContent = 'Not added';
+    if (addressEl) addressEl.textContent = 'Not added';
+    if (langEl) langEl.textContent = 'English';
   }
 }
 
