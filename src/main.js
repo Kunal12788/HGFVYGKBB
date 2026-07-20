@@ -34,26 +34,59 @@ function detectDeviceInfo() {
   const ua = navigator.userAgent;
   const isMedian = window.median || /gonative|median/i.test(ua);
   
+  // 1. Device Type
   let deviceType = 'Desktop';
-  if (isMedian) {
-    deviceType = 'Median Android APK';
-  } else if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
+  if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
     deviceType = /Tablet|iPad/i.test(ua) ? 'Tablet' : 'Mobile';
   }
+  if (isMedian) {
+    deviceType = deviceType + ' (Median APK)';
+  }
 
+  // 2. Exact OS & Version
   let os = 'Unknown OS';
-  if (/Android/i.test(ua)) os = isMedian ? 'Android (Median App)' : 'Android';
-  else if (/iPhone|iPad|iPod/i.test(ua)) os = isMedian ? 'iOS (Median App)' : 'iOS';
-  else if (/Windows/i.test(ua)) os = 'Windows';
-  else if (/Macintosh/i.test(ua)) os = 'macOS';
-  else if (/Linux/i.test(ua)) os = 'Linux';
+  const androidVerMatch = ua.match(/Android\s+([0-9.]+)/i);
+  const iosVerMatch = ua.match(/OS\s+([0-9_]+)/i);
 
-  let browser = 'Unknown Browser';
-  if (isMedian) browser = 'Median APK WebView';
-  else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
-  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
-  else if (/Edg/i.test(ua)) browser = 'Edge';
-  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+  if (androidVerMatch) {
+    os = `Android ${androidVerMatch[1]}`;
+  } else if (iosVerMatch) {
+    os = `iOS ${iosVerMatch[1].replace(/_/g, '.')}`;
+  } else if (/Windows/i.test(ua)) {
+    os = 'Windows';
+  } else if (/Macintosh/i.test(ua)) {
+    os = 'macOS';
+  } else if (/Linux/i.test(ua)) {
+    os = 'Linux';
+  }
+
+  // 3. Exact Device Model & Brand
+  let deviceModel = '';
+  const androidModelMatch = ua.match(/Android\s+[^;]+;\s*([^;)]+)\s*(?:Build|\))/i);
+  if (androidModelMatch && androidModelMatch[1]) {
+    let rawModel = androidModelMatch[1].replace(/;\s*wv/i, '').trim();
+    if (/^SM-/i.test(rawModel)) deviceModel = 'Samsung (' + rawModel + ')';
+    else if (/^CPH|^CPB|^PGB/i.test(rawModel)) deviceModel = 'OnePlus/Oppo (' + rawModel + ')';
+    else if (/^V2|^V1|^I2/i.test(rawModel)) deviceModel = 'Vivo (' + rawModel + ')';
+    else if (/^RMX/i.test(rawModel)) deviceModel = 'Realme (' + rawModel + ')';
+    else if (/^22|^23|^24|^M2|^210/i.test(rawModel)) deviceModel = 'Xiaomi/Redmi (' + rawModel + ')';
+    else if (/Pixel/i.test(rawModel)) deviceModel = 'Google ' + rawModel;
+    else deviceModel = rawModel;
+  } else if (/iPhone/i.test(ua)) {
+    deviceModel = 'Apple iPhone';
+  } else if (/iPad/i.test(ua)) {
+    deviceModel = 'Apple iPad';
+  }
+
+  // 4. Browser / App Name
+  let browser = isMedian ? 'Median APK App' : 'Browser';
+  if (deviceModel) {
+    browser = isMedian ? `${deviceModel} [Median APK]` : `${deviceModel} [Browser]`;
+  } else {
+    if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
+    else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+    else if (/Edg/i.test(ua)) browser = 'Edge';
+  }
 
   return {
     deviceType,
