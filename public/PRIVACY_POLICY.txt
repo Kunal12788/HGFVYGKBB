@@ -1,0 +1,55 @@
+PRIVACY POLICY FOR SSR BULLION LIVE RATES
+==================================================
+Effective Date: July 21, 2026
+
+Welcome to SSR Bullion ("we", "our", or "us"). We are committed to protecting your privacy and ensuring your personal information is handled in a safe and responsible manner. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and live rate services.
+
+1. INFORMATION WE COLLECT
+--------------------------------------------------
+We collect information in the following ways when you use our application:
+- Personal Information: When you register for live rates or WhatsApp notifications, we collect information such as your Full Name, WhatsApp Mobile Number, Shop Name, City/Address, and Preferred Language.
+- Device & Usage Data: We automatically collect certain non-personal information when you access the app, such as device model, operating system version, Push Notification Player IDs (via OneSignal), and application open events to deliver notifications accurately.
+
+2. HOW WE USE YOUR INFORMATION
+--------------------------------------------------
+We use the collected information for specific operational and communication purposes, including:
+- Sending real-time bullion rate alerts, market updates, and rate change notifications directly to your WhatsApp number.
+- Delivering push notifications regarding live rate updates.
+- Displaying your personalized member profile within the application.
+- Responding to customer support inquiries and requests.
+- Improving application performance and security.
+
+3. DATA STORAGE & THIRD-PARTY SERVICES
+--------------------------------------------------
+Your data is stored securely using industry-standard cloud infrastructure. We do not sell, trade, or rent your personal information to third parties. We share data only with trusted service providers necessary for app functionality:
+- Supabase: Cloud database provider used to securely store customer registrations and application rate data.
+- OneSignal: Notification service used to deliver real-time push notifications.
+- Google Play Services: Underlying app platform services.
+
+4. DATA SECURITY
+--------------------------------------------------
+We implement appropriate technical and organizational security measures, including Row-Level Security (RLS) and SSL/TLS encryption, to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+
+5. DATA RETENTION & USER RIGHTS
+--------------------------------------------------
+We retain your personal information for as long as necessary to provide you with our services. You have the right to:
+- Access and view the personal information stored in your app profile.
+- Reset or remove your local profile data using the in-app "Log Out & Reset" option.
+- Request permanent deletion of your registration data from our database by contacting us.
+
+6. CHILDREN'S PRIVACY
+--------------------------------------------------
+Our application is not intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13.
+
+7. CHANGES TO THIS PRIVACY POLICY
+--------------------------------------------------
+We may update this Privacy Policy from time to time. Any changes will be posted with an updated "Effective Date". We encourage you to review this policy periodically.
+
+8. CONTACT US
+--------------------------------------------------
+If you have any questions, concerns, or data deletion requests regarding this Privacy Policy, please contact us at:
+
+SSR Bullion Support Desk
+Email: ssrcreations41@gmail.com
+Application: SSR Bullion Live Rates
+==================================================
