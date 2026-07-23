@@ -1,6 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 import './native-bridge.js';
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (/^(https?:\/\/|\/|\.\/)/i.test(trimmed)) {
+    return escapeHtml(trimmed);
+  }
+  return '';
+}
+
+
 /*============================================================
    CONFIG — fill these in to go live. Leave SUPABASE_URL blank
    to keep running in demo mode with simulated data.
@@ -501,12 +521,14 @@ function setAdvertisementState(showAd, adUrl) {
   const mediaContainer = document.getElementById('adMediaContainer');
   if (!overlay || !mediaContainer) return;
 
-  if (showAd && adUrl) {
+  const safeUrl = sanitizeUrl(adUrl);
+
+  if (showAd && safeUrl) {
     // Inject the media
-    const isVideo = adUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
+    const isVideo = safeUrl.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
     if (isVideo) {
       const video = document.createElement('video');
-      video.src = adUrl;
+      video.src = safeUrl;
       video.loop = true;
       video.playsInline = true;
       video.autoplay = true;
@@ -535,7 +557,7 @@ function setAdvertisementState(showAd, adUrl) {
         });
       }
     } else {
-      mediaContainer.innerHTML = `<img src="${adUrl}" alt="Advertisement" />`;
+      mediaContainer.innerHTML = `<img src="${safeUrl}" alt="Advertisement" />`;
     }
     overlay.classList.remove('hidden');
     document.body.classList.add('ad-active');
@@ -950,17 +972,22 @@ async function loadServices() {
     let html = '';
     data.forEach(service => {
       // Remove any non-numeric characters for the href tel/wa links
-      const cleanNum = service.mobile_number.replace(/\D/g, '');
+      const rawMobile = service.mobile_number || '';
+      const cleanNum = escapeHtml(rawMobile.replace(/\D/g, ''));
+      const safeName = escapeHtml(service.name);
+      const safeWorkType = escapeHtml(service.work_type);
+      const safeAddress = escapeHtml(service.address);
+      const safeMobile = escapeHtml(rawMobile);
       
       html += `
         <div class="service-card">
           <div class="service-header">
-            <h3 class="service-name">${service.name}</h3>
-            <span class="service-type">${service.work_type}</span>
+            <h3 class="service-name">${safeName}</h3>
+            <span class="service-type">${safeWorkType}</span>
           </div>
           <div class="service-details">
-            <span>📍 ${service.address}</span>
-            <span>📞 ${service.mobile_number}</span>
+            <span>📍 ${safeAddress}</span>
+            <span>📞 ${safeMobile}</span>
           </div>
           <div class="service-actions">
             <a href="tel:+${cleanNum}" class="service-btn call">
