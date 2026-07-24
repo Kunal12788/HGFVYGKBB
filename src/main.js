@@ -38,7 +38,7 @@ const DEFAULT_SUPABASE_URL = "https://zeaszjipthhqjwdrafgb.supabase.co";
 const DEFAULT_ANON_KEY = atob("c2JfcHVibGlzaGFibGVfR013RGtFWU9Rbm41N29rV0VOMFd4d19qamdJSnBuRg==");
 
 function sanitizeSupabaseKey(key, fallbackKey) {
-  if (!key || typeof key !== 'string' || key.trim() === '' || key.trim().startsWith('eyJ')) {
+  if (!key || typeof key !== 'string' || key.trim() === '') {
     return fallbackKey;
   }
   return key.trim();
