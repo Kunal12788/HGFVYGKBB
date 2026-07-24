@@ -191,8 +191,13 @@ let settingsState = {
   use_gold_override: false,
   override_gold: 0,
   use_silver_override: false,
-  override_silver: 0
+  override_silver: 0,
+  gold_adjustment: 0,
+  silver_adjustment: 0
 };
+
+let latestGoldOcr = null;
+let latestSilverOcr = null;
 
 let isMarketOpen = true;
 
@@ -212,6 +217,48 @@ function calculateBaseNumber(price24k) {
 function calculateDerivedPrice(baseNumber, multiplier) {
     const raw = baseNumber * multiplier;
     return Math.round(raw); 
+}
+
+function parseOcrPrice(row) {
+  const finalPrice = Number(row.price || 0);
+  let rawPrice = null;
+
+  if (row.raw_text && row.raw_text.includes("OCR Raw:")) {
+    const match = row.raw_text.match(/OCR Raw:\s*(\d+(\.\d+)?)/);
+    if (match) {
+      rawPrice = Number(match[1]);
+    }
+  }
+
+  if (rawPrice === null) {
+    if (row.item === 'gold_995_100gms') {
+      rawPrice = settingsState.use_gold_override ? null : (finalPrice - settingsState.gold_adjustment);
+    } else {
+      rawPrice = settingsState.use_silver_override ? null : (finalPrice - settingsState.silver_adjustment);
+    }
+  }
+  return rawPrice;
+}
+
+function reapplySettings() {
+  if (latestGoldOcr !== null) {
+    const rawGoldRow = {
+      item: 'gold_995_100gms',
+      price: settingsState.use_gold_override ? settingsState.override_gold : (latestGoldOcr + settingsState.gold_adjustment),
+      created_at: new Date().toISOString(),
+      raw_text: `OCR Raw: ${latestGoldOcr} | Adjusted by: ${settingsState.gold_adjustment >= 0 ? '+' : ''}${settingsState.gold_adjustment}`
+    };
+    handleRow(rawGoldRow);
+  }
+  if (latestSilverOcr !== null) {
+    const rawSilverRow = {
+      item: 'silver_999_1kg',
+      price: settingsState.use_silver_override ? settingsState.override_silver : (latestSilverOcr + settingsState.silver_adjustment),
+      created_at: new Date().toISOString(),
+      raw_text: `OCR Raw: ${latestSilverOcr} | Adjusted by: ${settingsState.silver_adjustment >= 0 ? '+' : ''}${settingsState.silver_adjustment}`
+    };
+    handleRow(rawSilverRow);
+  }
 }
 
 /* ---------- Card catalog — order matches what you asked for ---------- */
@@ -450,8 +497,24 @@ function updateCard(cfg){
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
   const dbItem = row.item || row.product_key;
+
+  // Track raw OCR baseline rates
+  if (dbItem === 'gold_995_100gms') {
+    const ocr = parseOcrPrice(row);
+    if (ocr !== null) latestGoldOcr = ocr;
+  } else if (dbItem === 'silver_999_1kg') {
+    const ocr = parseOcrPrice(row);
+    if (ocr !== null) latestSilverOcr = ocr;
+  }
   
   let price = Number(row.price);
+
+  // Apply real-time local adjustments if raw OCR baseline rate is present
+  if (dbItem === 'gold_995_100gms') {
+    price = settingsState.use_gold_override ? settingsState.override_gold : (latestGoldOcr ? (latestGoldOcr + settingsState.gold_adjustment) : price);
+  } else if (dbItem === 'silver_999_1kg') {
+    price = settingsState.use_silver_override ? settingsState.override_silver : (latestSilverOcr ? (latestSilverOcr + settingsState.silver_adjustment) : price);
+  }
 
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
@@ -782,7 +845,7 @@ async function goLive(){
   // Fetch initial market active state, reason, and override settings
   const { data: settings } = await client
     .from('bullion_settings')
-    .select('is_active, market_closed_reason, use_gold_override, override_gold, use_silver_override, override_silver, show_advertisement, advertisement_url')
+    .select('is_active, market_closed_reason, use_gold_override, override_gold, use_silver_override, override_silver, show_advertisement, advertisement_url, gold_adjustment, silver_adjustment')
     .eq('id', 1)
     .single();
     
@@ -798,6 +861,8 @@ async function goLive(){
     settingsState.override_gold = Number(settings.override_gold || 0);
     settingsState.use_silver_override = !!settings.use_silver_override;
     settingsState.override_silver = Number(settings.override_silver || 0);
+    settingsState.gold_adjustment = Number(settings.gold_adjustment || 0);
+    settingsState.silver_adjustment = Number(settings.silver_adjustment || 0);
   }
 
   const { data, error } = await client
@@ -809,6 +874,9 @@ async function goLive(){
   isInitialLoading = true;
   data.reverse().forEach(handleRow);
   isInitialLoading = false;
+
+  // Apply initial adjustments to rates
+  reapplySettings();
 
   els.feedDot.className = 'status-dot live';
   els.feedText.textContent = 'Live';
@@ -831,6 +899,11 @@ async function goLive(){
             settingsState.override_gold = Number(payload.new.override_gold || 0);
             settingsState.use_silver_override = !!payload.new.use_silver_override;
             settingsState.override_silver = Number(payload.new.override_silver || 0);
+            settingsState.gold_adjustment = Number(payload.new.gold_adjustment || 0);
+            settingsState.silver_adjustment = Number(payload.new.silver_adjustment || 0);
+            
+            // Reapply adjustments and update display immediately
+            reapplySettings();
         }
     })
     .subscribe();
