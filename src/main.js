@@ -51,10 +51,23 @@ const TABLE_NAME         = "bullion_rates";
 const TEMP_SUPABASE_URL = import.meta.env.VITE_TEMP_SUPABASE_URL || SUPABASE_URL;
 const TEMP_SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY, atob("c2JfcHVibGlzaGFibGVfeTE5NGE0UWpTZC0zWWtESVZMZHZPUV9fWUVnV0w4Xw=="));
 
+const dummyStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {}
+};
+
 let tempSupabase = null;
 if (TEMP_SUPABASE_URL && TEMP_SUPABASE_ANON_KEY) {
   try {
-    tempSupabase = createClient(TEMP_SUPABASE_URL, TEMP_SUPABASE_ANON_KEY);
+    tempSupabase = createClient(TEMP_SUPABASE_URL, TEMP_SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        storage: dummyStorage
+      }
+    });
   } catch (err) {
     console.warn('Temp Supabase Client Init Error:', err);
   }
@@ -737,7 +750,14 @@ function updateProfileUI() {
 
 /* ---------- Live mode ---------- */
 async function goLive(){
-  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storage: dummyStorage
+    }
+  });
   globalSupabase = client;
   
   // Listen for the native bridge event when the app opens
