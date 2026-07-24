@@ -34,12 +34,22 @@ function sanitizeUrl(url) {
    card ids below (minus the "card-" prefix). If your OCR pipeline
    uses different keys, edit PRODUCT_KEY_MAP to translate them.
    ============================================================ */
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const DEFAULT_SUPABASE_URL = "https://zeaszjipthhqjwdrafgb.supabase.co";
+const DEFAULT_ANON_KEY = atob("c2JfcHVibGlzaGFibGVfR013RGtFWU9Rbm41N29rV0VOMFd4d19qamdJSnBuRg==");
+
+function sanitizeSupabaseKey(key, fallbackKey) {
+  if (!key || typeof key !== 'string' || key.trim() === '' || key.trim().startsWith('eyJ')) {
+    return fallbackKey;
+  }
+  return key.trim();
+}
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_SUPABASE_ANON_KEY, DEFAULT_ANON_KEY);
 const TABLE_NAME         = "bullion_rates";
 
 const TEMP_SUPABASE_URL = import.meta.env.VITE_TEMP_SUPABASE_URL || SUPABASE_URL;
-const TEMP_SUPABASE_ANON_KEY = import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY;
+const TEMP_SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY, atob("c2JfcHVibGlzaGFibGVfeTE5NGE0UWpTZC0zWWtESVZMZHZPUV9fWUVnV0w4Xw=="));
 
 let tempSupabase = null;
 if (TEMP_SUPABASE_URL && TEMP_SUPABASE_ANON_KEY) {
