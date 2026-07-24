@@ -220,21 +220,22 @@ function calculateDerivedPrice(baseNumber, multiplier) {
 }
 
 function parseOcrPrice(row) {
+  if (!row || isNaN(Number(row.price))) return null;
   const finalPrice = Number(row.price || 0);
   let rawPrice = null;
 
   if (row.raw_text && row.raw_text.includes("OCR Raw:")) {
     const match = row.raw_text.match(/OCR Raw:\s*(\d+(\.\d+)?)/);
-    if (match) {
+    if (match && !isNaN(Number(match[1]))) {
       rawPrice = Number(match[1]);
     }
   }
 
-  if (rawPrice === null) {
+  if (rawPrice === null && finalPrice > 0) {
     if (row.item === 'gold_995_100gms') {
-      rawPrice = settingsState.use_gold_override ? null : (finalPrice - settingsState.gold_adjustment);
-    } else {
-      rawPrice = settingsState.use_silver_override ? null : (finalPrice - settingsState.silver_adjustment);
+      rawPrice = settingsState.use_gold_override ? null : (finalPrice - (settingsState.gold_adjustment || 0));
+    } else if (row.item === 'silver_999_1kg') {
+      rawPrice = settingsState.use_silver_override ? null : (finalPrice - (settingsState.silver_adjustment || 0));
     }
   }
   return rawPrice;
