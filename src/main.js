@@ -402,7 +402,16 @@ function animateNumber(el, from, to, stateObj, duration=500){
 function drawSpark(svg, values, color){
   if (!svg || values.length < 2) { if(svg) svg.innerHTML=''; return; }
   const w = 300, h = 46, pad = 3;
-  const min = Math.min(...values), max = Math.max(...values);
+  let min = Math.min(...values), max = Math.max(...values);
+  
+  // Enforce a minimum window range to prevent small fluctuations (e.g. +1/-10) from showing as huge peaks/valleys
+  const minRange = (svg.id && svg.id.includes('silver')) ? 500 : 150;
+  if ((max - min) < minRange) {
+    const center = (max + min) / 2;
+    min = center - minRange / 2;
+    max = center + minRange / 2;
+  }
+
   const range = (max - min) || 1;
   const step = (w - pad*2) / (values.length - 1);
   const pts = values.map((v,i) => [pad + i*step, h - pad - ((v - min) / range) * (h - pad*2)]);
