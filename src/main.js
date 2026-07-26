@@ -1072,7 +1072,7 @@ async function goLive(){
   }, 15000);
 
   // Live Sparkline Breathing / Heart-beat Animation Loop:
-  // Redraws the sparkline graph of all active cards every 1.5 seconds, applying a visual-only micro-jitter 
+  // Redraws the sparkline graph of all active cards every 400 milliseconds, applying a visual-only micro-jitter 
   // to the final node of the path. This keeps the graph lines moving continuously to show that the system is active
   // during slow price updates (e.g. 30 seconds), without affecting the official rate display numbers.
   setInterval(() => {
@@ -1083,8 +1083,8 @@ async function goLive(){
           const values = [...s.history];
           const lastIndex = values.length - 1;
           
-          // Generate a gentle breathing micro-jitter (between -1.5 and +1.5)
-          const breathingJitter = (Math.random() - 0.5) * 3;
+          // Generate a gentle breathing micro-jitter (between -2.5 and +2.5)
+          const breathingJitter = (Math.random() - 0.5) * 5;
           values[lastIndex] = values[lastIndex] + breathingJitter;
           
           const color = cfg.metal === 'gold' ? '#e3b64f' : '#c7cdd3';
@@ -1092,7 +1092,7 @@ async function goLive(){
         }
       }
     });
-  }, 1500);
+  }, 400);
 }
 
 /* ---------- Demo mode ---------- */
