@@ -112,3 +112,46 @@ window.syncUserWithOneSignal = function(userId) {
         console.log(`[NativeBridge] Ignored syncUserWithOneSignal(${userId}) - Not running in Median Wrapper.`);
     }
 };
+
+/**
+ * Trigger a native Android push notification via the NativeAndroid JS bridge.
+ * Falls back to Web Notification API if not inside the Android WebView.
+ *
+ * @param {string} title   - Notification title
+ * @param {string} message - Notification body text
+ */
+window.triggerNativePush = function(title, message, trackingId, imageUrl) {
+    if (!title || !message) return;
+    console.log(`[NativeBridge] Push: "${title}" — "${message}" (ID: ${trackingId || 'none'}, Image: ${imageUrl || 'none'})`);
+
+    // 1. Primary: Native Android WebView JS Bridge (NativeAppBridge.kt)
+    if (window.NativeAndroid) {
+        try {
+            if (imageUrl && typeof window.NativeAndroid.postNotificationWithImage === 'function') {
+                window.NativeAndroid.postNotificationWithImage(title, message, imageUrl, trackingId ? String(trackingId) : null);
+                return;
+            } else if (trackingId && typeof window.NativeAndroid.postNotificationWithId === 'function') {
+                window.NativeAndroid.postNotificationWithId(title, message, String(trackingId));
+                return;
+            } else if (typeof window.NativeAndroid.postNotification === 'function') {
+                window.NativeAndroid.postNotification(title, message);
+                return;
+            }
+        } catch (e) {
+            console.warn('[NativeBridge] NativeAndroid.postNotification error:', e);
+        }
+    }
+
+    // 2. Fallback: Standard Web Notifications API (browser / PWA)
+    if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+            const options = { body: message, icon: './favicon.svg' };
+            if (imageUrl) options.image = imageUrl;
+            new Notification(title, options);
+            return;
+        } catch (e) {
+            console.warn('[NativeBridge] Notification API error:', e);
+        }
+    }
+};
+

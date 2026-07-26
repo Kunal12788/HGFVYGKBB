@@ -495,6 +495,55 @@ function updateCard(cfg){
   }
   updateTicker(cfg, last, change);
 }
+// --- PUSH NOTIFICATION STATE ---
+let lastNotifiedGoldPrice = null;
+let lastNotifiedSilverPrice = null;
+let lastGreetingDate = null;
+let lastGreetingType = null;
+
+function checkPriceThresholdNotification(dbItem, price) {
+  if (isInitialLoading) return;
+  if (dbItem === 'gold_995_100gms') {
+    if (lastNotifiedGoldPrice === null) { lastNotifiedGoldPrice = price; return; }
+    const diff = price - lastNotifiedGoldPrice;
+    if (Math.abs(diff) >= 100) {
+      const dir = diff > 0 ? '📈 UP' : '📉 DOWN';
+      if (window.triggerNativePush) window.triggerNativePush(
+        `Gold 995 Rate ${dir}! (₹${Math.abs(diff)})`,
+        `Gold 995 is now ₹${fmtINR(price)} (${diff >= 0 ? '+' : ''}₹${diff}). Check live rates!`
+      );
+      lastNotifiedGoldPrice = price;
+    }
+  } else if (dbItem === 'silver_999_1kg') {
+    if (lastNotifiedSilverPrice === null) { lastNotifiedSilverPrice = price; return; }
+    const diff = price - lastNotifiedSilverPrice;
+    if (Math.abs(diff) >= 100) {
+      const dir = diff > 0 ? '📈 UP' : '📉 DOWN';
+      if (window.triggerNativePush) window.triggerNativePush(
+        `Silver 999 Rate ${dir}! (₹${Math.abs(diff)})`,
+        `Silver 999 is now ₹${fmtINR(price)} (${diff >= 0 ? '+' : ''}₹${diff}). Check live rates!`
+      );
+      lastNotifiedSilverPrice = price;
+    }
+  }
+}
+
+function checkIstGreetings() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+  const hour = Number(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', hour: 'numeric', hour12: false }));
+  const minute = Number(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', minute: 'numeric' }));
+  if (hour === 9 && minute === 0 && (lastGreetingDate !== dateStr || lastGreetingType !== 'morning')) {
+    lastGreetingDate = dateStr; lastGreetingType = 'morning';
+    if (window.triggerNativePush) window.triggerNativePush('Good Morning! ☀️', "Trading day has started at SSR Bullion. Check out today's opening rates!");
+  } else if (hour === 22 && minute === 0 && (lastGreetingDate !== dateStr || lastGreetingType !== 'night')) {
+    lastGreetingDate = dateStr; lastGreetingType = 'night';
+    if (window.triggerNativePush) window.triggerNativePush('Good Night! 🌙', "Live rate streaming is paused for today. Rest well and check back tomorrow morning!");
+  }
+}
+setInterval(checkIstGreetings, 25000);
+// --- END PUSH NOTIFICATION STATE ---
+
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
   const dbItem = row.item || row.product_key;
@@ -510,12 +559,17 @@ function handleRow(row){
   
   let price = Number(row.price);
 
-  // Apply real-time local adjustments if raw OCR baseline rate is present
-  if (dbItem === 'gold_995_100gms') {
-    price = settingsState.use_gold_override ? settingsState.override_gold : (latestGoldOcr ? (latestGoldOcr + settingsState.gold_adjustment) : price);
+  // Apply real-time local adjustments for live OCR rates, or use incoming rate directly for manual overrides
+  if (row.raw_text && row.raw_text.includes("Admin Manual Override")) {
+    price = Number(row.price);
+  } else if (dbItem === 'gold_995_100gms') {
+    price = settingsState.use_gold_override ? Number(row.price) : (latestGoldOcr ? (latestGoldOcr + settingsState.gold_adjustment) : price);
   } else if (dbItem === 'silver_999_1kg') {
-    price = settingsState.use_silver_override ? settingsState.override_silver : (latestSilverOcr ? (latestSilverOcr + settingsState.silver_adjustment) : price);
+    price = settingsState.use_silver_override ? Number(row.price) : (latestSilverOcr ? (latestSilverOcr + settingsState.silver_adjustment) : price);
   }
+
+  // Check if price shifted >=₹100 and fire push notification
+  checkPriceThresholdNotification(dbItem, price);
 
   const key = PRODUCT_KEY_MAP[dbItem] || dbItem;
   const s = state[key];
@@ -908,6 +962,59 @@ async function goLive(){
         }
     })
     .subscribe();
+
+  // Listen for admin-broadcasted custom / ad notifications (Realtime channel)
+  const _deliveredNotifIds = new Set(); // Global dedup - prevents Realtime+polling duplicates
+
+  function _deliverNotification(id, title, message, imageUrl) {
+    const key = String(id);
+    if (_deliveredNotifIds.has(key)) return; // Already delivered — skip
+    _deliveredNotifIds.add(key);
+    if (window.triggerNativePush) window.triggerNativePush(title, message, id, imageUrl);
+  }
+
+  try {
+    client.channel('scheduled-notifications-stream')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scheduled_notifications' }, payload => {
+        if (payload && payload.new && payload.new.status !== 'cancelled') {
+          _deliverNotification(payload.new.id, payload.new.title, payload.new.message, payload.new.image_url);
+        }
+      })
+      .subscribe();
+  } catch(e) {
+    console.warn('[Notifications] Realtime channel setup failed:', e);
+  }
+
+  // POLLING FALLBACK: Check for new notifications every 30 seconds
+  let lastSeenNotificationId = 0;
+  const pollingStartTime = new Date().toISOString();
+
+  async function pollScheduledNotifications() {
+    if (!globalSupabase) return;
+    try {
+      const { data, error } = await globalSupabase
+        .from('scheduled_notifications')
+        .select('id, title, message, image_url, status, created_at')
+        .neq('status', 'cancelled')
+        .gt('id', lastSeenNotificationId)
+        .gte('created_at', pollingStartTime)
+        .order('id', { ascending: true });
+
+      if (error) return;
+      if (data && data.length > 0) {
+        data.forEach(item => {
+          if (item.id > lastSeenNotificationId) lastSeenNotificationId = item.id;
+          _deliverNotification(item.id, item.title, item.message, item.image_url);
+        });
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
+  // Start polling after 15s delay, then every 30s
+  setTimeout(() => {
+    pollScheduledNotifications();
+    setInterval(pollScheduledNotifications, 30000);
+  }, 15000);
 }
 
 /* ---------- Demo mode ---------- */
@@ -943,11 +1050,7 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 1000 * 30);
 
-if (SUPABASE_URL && SUPABASE_ANON_KEY){
-  goLive().catch(err => { console.error('Supabase connection failed, falling back to demo:', err); goDemo(); });
-} else {
-  goDemo();
-}
+// goLive() is started ONCE at the bottom of this file.
 
 /* ---------- Splash screen: trust / loyalty / security background ---------- */
 const TRUST_ICONS = [
