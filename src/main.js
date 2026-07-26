@@ -936,7 +936,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let delPendingError = null;
         let delLogsError = null;
-        let delMainError = null;
 
         if (storedPhone) {
           // 1. Delete from pending_whatsapp_subscriptions
@@ -960,21 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
           } catch (err) {
             delLogsError = err;
           }
-
-          // 3. Delete from bullion_whatsapp_customers
-          try {
-            const { error: delMain } = await mainSupabase
-              .from('bullion_whatsapp_customers')
-              .delete()
-              .eq('phone_number', storedPhone);
-            if (delMain) throw delMain;
-          } catch (err) {
-            delMainError = err;
-          }
         }
 
         // Handle outcomes
-        if (delPendingError || delLogsError || delMainError) {
+        if (delPendingError || delLogsError) {
           // Log specific failures for developer debugging
           if (delPendingError) {
             console.error('[Delete Account Debug] pending_whatsapp_subscriptions deletion failed:', delPendingError);
@@ -982,12 +970,9 @@ document.addEventListener('DOMContentLoaded', () => {
           if (delLogsError) {
             console.error('[Delete Account Debug] user_app_activity_logs deletion failed:', delLogsError);
           }
-          if (delMainError) {
-            console.error('[Delete Account Debug] bullion_whatsapp_customers deletion failed:', delMainError);
-          }
 
           // Determine error message for the user based on partial or full failure
-          if (delPendingError && delLogsError && delMainError) {
+          if (delPendingError && delLogsError) {
             throw new Error('Connection error. Deletion could not be performed on the server. Please try again.');
           } else {
             // Partial failure case
