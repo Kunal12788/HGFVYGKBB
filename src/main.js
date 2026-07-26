@@ -414,7 +414,16 @@ function drawSpark(svg, values, color){
 
   const range = (max - min) || 1;
   const step = (w - pad*2) / (values.length - 1);
-  const pts = values.map((v,i) => [pad + i*step, h - pad - ((v - min) / range) * (h - pad*2)]);
+  
+  // Calculate points with a dynamic wave movement that ripples towards the latest rates (right side)
+  const pts = values.map((v, i) => {
+    // Increase amplitude near the right side of the graph
+    const amplitude = 3.5 * (i / (values.length - 1)); // 0 at left side, 3.5px at rightmost side
+    const wave = Math.sin((Date.now() / 150) - i * 0.4) * amplitude;
+    const val = v + wave;
+    return [pad + i*step, h - pad - ((val - min) / range) * (h - pad*2)];
+  });
+
   const line = pts.map((p,i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
   const area = line + ` L${pts[pts.length-1][0].toFixed(1)},${h} L${pts[0][0].toFixed(1)},${h} Z`;
   const gid = 'g' + Math.random().toString(36).slice(2,8);
@@ -1072,27 +1081,21 @@ async function goLive(){
   }, 15000);
 
   // Live Sparkline Breathing / Heart-beat Animation Loop:
-  // Redraws the sparkline graph of all active cards every 400 milliseconds, applying a visual-only micro-jitter 
-  // to the final node of the path. This keeps the graph lines moving continuously to show that the system is active
-  // during slow price updates (e.g. 30 seconds), without affecting the official rate display numbers.
+  // Redraws the sparkline graph of all active cards every 50 milliseconds (20 frames per second).
+  // The drawSpark function applies a real-time mathematical sine-wave ripple that ripples
+  // towards the rightmost side of the graph, showing continuous system life.
   setInterval(() => {
     CARDS.forEach(cfg => {
       if (cfg.size === 'big') {
         const s = state[cfg.id];
         if (s && s.history && s.history.length >= 2) {
           const values = [...s.history];
-          const lastIndex = values.length - 1;
-          
-          // Generate a gentle breathing micro-jitter (between -2.5 and +2.5)
-          const breathingJitter = (Math.random() - 0.5) * 5;
-          values[lastIndex] = values[lastIndex] + breathingJitter;
-          
           const color = cfg.metal === 'gold' ? '#e3b64f' : '#c7cdd3';
           drawSpark(document.getElementById('spark-' + cfg.id), values.slice(-24), color);
         }
       }
     });
-  }, 400);
+  }, 50);
 }
 
 /* ---------- Demo mode ---------- */
