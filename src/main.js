@@ -574,6 +574,27 @@ function handleRow(row){
     const ocr = parseOcrPrice(row);
     if (ocr !== null) latestSilverOcr = ocr;
   }
+
+  const isOverrideRow = !!(row.raw_text && row.raw_text.includes("Admin Manual Override"));
+
+  // Enforce strict separation between override rates and OCR rates
+  if (dbItem === 'gold_995_100gms' || dbItem === 'gold-24k-995-1kg' || dbItem.startsWith('gold-')) {
+    if (settingsState.use_gold_override && !isOverrideRow) {
+      return; // Ignore regular OCR rate rows while override is active
+    }
+    if (!settingsState.use_gold_override && isOverrideRow) {
+      return; // Ignore stale override rate rows while override is inactive
+    }
+  }
+
+  if (dbItem === 'silver_999_1kg' || dbItem === 'silver-999-3kg') {
+    if (settingsState.use_silver_override && !isOverrideRow) {
+      return; // Ignore regular OCR rate rows while override is active
+    }
+    if (!settingsState.use_silver_override && isOverrideRow) {
+      return; // Ignore stale override rate rows while override is inactive
+    }
+  }
   
   let price = Number(row.price);
 
@@ -612,18 +633,18 @@ function handleRow(row){
       
       // Calculate 1 KG 24K (which is 100gms price - 50)
       const kgPrice = price - 50;
-      handleRow({ item: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at });
+      handleRow({ item: 'gold-24k-995-1kg', price: kgPrice, created_at: row.created_at, raw_text: row.raw_text });
       
       // Calculate the derived Karats (which are per 10g, so we divide by 10)
       derivedGoldItems.forEach(derived => {
           const finalPrice = calculateDerivedPrice(baseNumber, derived.multiplier) / 10;
-          handleRow({ item: derived.id, price: finalPrice, created_at: row.created_at });
+          handleRow({ item: derived.id, price: finalPrice, created_at: row.created_at, raw_text: row.raw_text });
       });
   }
 
   if (dbItem === 'silver_999_1kg') {
       const derivedId = 'silver-999-3kg';
-      handleRow({ item: derivedId, price: price - 200, created_at: row.created_at });
+      handleRow({ item: derivedId, price: price - 200, created_at: row.created_at, raw_text: row.raw_text });
   }
 }
 
