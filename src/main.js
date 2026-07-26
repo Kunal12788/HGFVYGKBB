@@ -1070,6 +1070,29 @@ async function goLive(){
     pollScheduledNotifications();
     setInterval(pollScheduledNotifications, 30000);
   }, 15000);
+
+  // Live Sparkline Breathing / Heart-beat Animation Loop:
+  // Redraws the sparkline graph of all active cards every 1.5 seconds, applying a visual-only micro-jitter 
+  // to the final node of the path. This keeps the graph lines moving continuously to show that the system is active
+  // during slow price updates (e.g. 30 seconds), without affecting the official rate display numbers.
+  setInterval(() => {
+    CARDS.forEach(cfg => {
+      if (cfg.size === 'big') {
+        const s = state[cfg.id];
+        if (s && s.history && s.history.length >= 2) {
+          const values = [...s.history];
+          const lastIndex = values.length - 1;
+          
+          // Generate a gentle breathing micro-jitter (between -1.5 and +1.5)
+          const breathingJitter = (Math.random() - 0.5) * 3;
+          values[lastIndex] = values[lastIndex] + breathingJitter;
+          
+          const color = cfg.metal === 'gold' ? '#e3b64f' : '#c7cdd3';
+          drawSpark(document.getElementById('spark-' + cfg.id), values.slice(-24), color);
+        }
+      }
+    });
+  }, 1500);
 }
 
 /* ---------- Demo mode ---------- */
