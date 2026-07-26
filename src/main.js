@@ -1081,7 +1081,7 @@ async function goLive(){
   }, 15000);
 
   // Live Sparkline Breathing / Heart-beat Animation Loop:
-  // Redraws the sparkline graph of all active cards every 50 milliseconds (20 frames per second).
+  // Redraws the sparkline graph of all active cards every 25 milliseconds (40 frames per second).
   // The drawSpark function applies a real-time mathematical sine-wave ripple that ripples
   // towards the rightmost side of the graph, showing continuous system life.
   setInterval(() => {
@@ -1095,7 +1095,7 @@ async function goLive(){
         }
       }
     });
-  }, 50);
+  }, 25);
 }
 
 /* ---------- Demo mode ---------- */
