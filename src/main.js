@@ -553,8 +553,17 @@ function checkIstGreetings() {
 setInterval(checkIstGreetings, 25000);
 // --- END PUSH NOTIFICATION STATE ---
 
+const processedRowIds = new Set();
+
 function handleRow(row){
   if (!row || isNaN(Number(row.price)) || Number(row.price) <= 0) return;
+
+  // Deduplicate rows by database row ID (if present) to prevent duplicate UI flashes/graph entries
+  if (row.id) {
+    if (processedRowIds.has(row.id)) return;
+    processedRowIds.add(row.id);
+  }
+
   const dbItem = row.item || row.product_key;
 
   // Track raw OCR baseline rates
