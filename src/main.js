@@ -49,7 +49,7 @@ const SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_SUPABASE_ANON
 const TABLE_NAME         = "bullion_rates";
 
 const TEMP_SUPABASE_URL = import.meta.env.VITE_TEMP_SUPABASE_URL || SUPABASE_URL;
-const TEMP_SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY, atob("c2JfcHVibGlzaGFibGVfeTE5NGE0UWpTZC0zWWtESVZMZHZPUV9fWUVnV0w4Xw=="));
+const TEMP_SUPABASE_ANON_KEY = sanitizeSupabaseKey(import.meta.env.VITE_TEMP_SUPABASE_ANON_KEY, atob("c2JfcHVibGlzaGFibGVfR013RGtFWU9Rbm41N29rV0VOMFd4d19qamdJSnBuRg=="));
 
 const dummyStorage = {
   getItem: () => null,
