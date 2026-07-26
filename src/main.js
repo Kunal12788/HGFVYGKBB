@@ -419,7 +419,7 @@ function drawSpark(svg, values, color){
   const pts = values.map((v, i) => {
     // Increase amplitude near the right side of the graph
     const amplitude = 3.5 * (i / (values.length - 1)); // 0 at left side, 3.5px at rightmost side
-    const wave = Math.sin((Date.now() / 150) - i * 0.4) * amplitude;
+    const wave = Math.sin((Date.now() / 150) - i * 0.8) * amplitude;
     const val = v + wave;
     return [pad + i*step, h - pad - ((val - min) / range) * (h - pad*2)];
   });
