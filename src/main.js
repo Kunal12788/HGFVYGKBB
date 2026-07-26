@@ -242,19 +242,19 @@ function parseOcrPrice(row) {
 }
 
 function reapplySettings() {
-  if (latestGoldOcr !== null) {
+  if (!settingsState.use_gold_override && latestGoldOcr !== null) {
     const rawGoldRow = {
       item: 'gold_995_100gms',
-      price: settingsState.use_gold_override ? settingsState.override_gold : (latestGoldOcr + settingsState.gold_adjustment),
+      price: latestGoldOcr + settingsState.gold_adjustment,
       created_at: new Date().toISOString(),
       raw_text: `OCR Raw: ${latestGoldOcr} | Adjusted by: ${settingsState.gold_adjustment >= 0 ? '+' : ''}${settingsState.gold_adjustment}`
     };
     handleRow(rawGoldRow);
   }
-  if (latestSilverOcr !== null) {
+  if (!settingsState.use_silver_override && latestSilverOcr !== null) {
     const rawSilverRow = {
       item: 'silver_999_1kg',
-      price: settingsState.use_silver_override ? settingsState.override_silver : (latestSilverOcr + settingsState.silver_adjustment),
+      price: latestSilverOcr + settingsState.silver_adjustment,
       created_at: new Date().toISOString(),
       raw_text: `OCR Raw: ${latestSilverOcr} | Adjusted by: ${settingsState.silver_adjustment >= 0 ? '+' : ''}${settingsState.silver_adjustment}`
     };
@@ -944,6 +944,22 @@ async function goLive(){
         }
     })
     .subscribe();
+
+  // Polling Fallback: Fetch latest rate ticks every 3 seconds to guarantee continuous live updates across all devices
+  setInterval(async () => {
+    try {
+      const { data: latestTicks } = await client
+        .from(TABLE_NAME)
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (latestTicks && latestTicks.length > 0) {
+        latestTicks.reverse().forEach(handleRow);
+      }
+    } catch (e) {
+      console.warn('Rate polling notice:', e);
+    }
+  }, 3000);
 
   // Listen to Market Closed toggle, reason, and override setting updates
   client.channel('market-closed-stream')
