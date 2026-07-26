@@ -896,21 +896,76 @@ document.addEventListener('DOMContentLoaded', () => {
       if (deleteDialogError) deleteDialogError.classList.add('hidden');
 
       try {
-        if (!tempSupabase) throw new Error('No server connection. Please check your internet and try again.');
+        if (!tempSupabase) throw new Error('Signup server connection is not available.');
 
-        // Delete from pending_whatsapp_subscriptions by phone_number
+        // Retrieve or initialize the main project Supabase client
+        let mainSupabase = globalSupabase;
+        if (!mainSupabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+          try {
+            mainSupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+              auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false,
+                storage: dummyStorage
+              }
+            });
+          } catch (e) {
+            console.warn('Failed to initialize inline mainSupabase client:', e);
+          }
+        }
+        if (!mainSupabase) throw new Error('Main server connection is not available.');
+
+        let signupProjectError = null;
+        let mainProjectError = null;
+
         if (storedPhone) {
-          const { error: delSub } = await tempSupabase
-            .from('pending_whatsapp_subscriptions')
-            .delete()
-            .eq('phone_number', storedPhone);
-          if (delSub) throw new Error(`Subscription delete error: ${delSub.message}`);
+          // 1. Attempt deletions on the signup project (tempSupabase)
+          try {
+            const { error: delSub } = await tempSupabase
+              .from('pending_whatsapp_subscriptions')
+              .delete()
+              .eq('phone_number', storedPhone);
+            if (delSub) throw delSub;
 
-          const { error: delLogs } = await tempSupabase
-            .from('user_app_activity_logs')
-            .delete()
-            .eq('phone_number', storedPhone);
-          if (delLogs) throw new Error(`Activity log delete error: ${delLogs.message}`);
+            const { error: delLogs } = await tempSupabase
+              .from('user_app_activity_logs')
+              .delete()
+              .eq('phone_number', storedPhone);
+            if (delLogs) throw delLogs;
+          } catch (err) {
+            signupProjectError = err;
+          }
+
+          // 2. Attempt deletions on the main project (mainSupabase)
+          try {
+            const { error: delMain } = await mainSupabase
+              .from('bullion_whatsapp_customers')
+              .delete()
+              .eq('phone_number', storedPhone);
+            if (delMain) throw delMain;
+          } catch (err) {
+            mainProjectError = err;
+          }
+        }
+
+        // Handle outcomes
+        if (signupProjectError || mainProjectError) {
+          // Log specific failures for developer debugging
+          if (signupProjectError) {
+            console.error('[Delete Account Debug] Signup project deletion failed:', signupProjectError);
+          }
+          if (mainProjectError) {
+            console.error('[Delete Account Debug] Main project (table: bullion_whatsapp_customers) deletion failed:', mainProjectError);
+          }
+
+          // Determine error message for the user based on partial or full failure
+          if (signupProjectError && mainProjectError) {
+            throw new Error('Connection error. Deletion could not be performed on either server. Please try again.');
+          } else {
+            // Partial failure case
+            throw new Error('We couldn\'t fully complete your deletion request. Please contact support at ssrcreations41@gmail.com so we can confirm your data is removed everywhere.');
+          }
         }
 
         // Server deletes succeeded — now clear local state
@@ -920,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Close dialog and show success message, then re-open onboarding
         deleteDialog.classList.add('hidden');
-        alert('✅ Your account and all associated data have been permanently deleted from our servers.');
+        alert('✅ Your account and all associated data have been permanently deleted.');
 
         // Return user to onboarding registration screen
         const obForm = document.getElementById('whatsappOnboardingForm');
@@ -934,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (err) {
         // IMPORTANT: Do NOT clear local data if server delete failed
-        console.error('Delete account error:', err);
+        console.error('Delete account flow error:', err);
         if (deleteDialogError) {
           deleteDialogError.textContent = `❌ Deletion failed: ${err.message || 'Network error. Please check your connection and try again.'}`;
           deleteDialogError.classList.remove('hidden');
