@@ -632,6 +632,9 @@ function handleRow(row){
       }
   } else {
       s.history.push(price);
+      if (s.history.length > 24) {
+          s.history.shift();
+      }
       s.lastTs = row.created_at ? new Date(row.created_at).getTime() : Date.now();
       updateCard(cfg);
   }
@@ -1096,6 +1099,20 @@ async function goLive(){
       }
     });
   }, 25);
+
+  setInterval(() => {
+    CARDS.forEach(cfg => {
+      if (cfg.size === 'big') {
+        const s = state[cfg.id];
+        if (s && s.history && s.history.length >= 2 && s.shown) {
+          s.history.push(s.shown);
+          if (s.history.length > 24) {
+            s.history.shift();
+          }
+        }
+      }
+    });
+  }, 1500);
 }
 
 /* ---------- Demo mode ---------- */
