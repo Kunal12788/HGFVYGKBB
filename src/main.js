@@ -140,42 +140,16 @@ function detectDeviceInfo() {
 }
 
 async function logCustomerAppOpen() {
-  const profileRaw = localStorage.getItem('customer_profile');
-  let phone = 'GUEST_DEVICE';
-  let name = 'Guest User';
-  if (profileRaw) {
-    try {
-      const p = JSON.parse(profileRaw);
-      if (p.phone) phone = p.phone;
-      if (p.name) name = p.name;
-    } catch (e) {}
-  }
-
   if (tempSupabase) {
     try {
       const info = detectDeviceInfo();
-      // Try RPC call first
-      const { error: rpcErr } = await tempSupabase.rpc('record_app_open_event', {
-        p_phone: phone,
-        p_name: name,
-        p_device_type: info.deviceType,
-        p_os_name: info.os,
-        p_browser_name: info.browser,
-        p_screen_res: info.screenRes
-      });
-
-      if (rpcErr) {
-        console.warn('RPC Analytics Notice (Falling back to direct table insert):', rpcErr);
-        // Direct table insert fallback
-        await tempSupabase.from('user_app_activity_logs').insert([{
-          phone_number: phone,
-          contact_name: name,
-          device_type: info.deviceType,
-          os_name: info.os,
-          browser_name: info.browser,
-          screen_resolution: info.screenRes
-        }]);
-      }
+      // Only send anonymous device/session data — no personal identifiers
+      await tempSupabase.from('user_app_activity_logs').insert([{
+        device_type: info.deviceType,
+        os_name: info.os,
+        browser_name: info.browser,
+        screen_resolution: info.screenRes
+      }]);
     } catch (err) {
       console.warn('Analytics tracking notice:', err);
     }
@@ -877,6 +851,100 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // ── DELETE ACCOUNT ──────────────────────────────────────────────────────────
+  const deleteAccountBtn  = document.getElementById('deleteAccountBtn');
+  const deleteDialog      = document.getElementById('deleteAccountDialog');
+  const deleteCancelBtn   = document.getElementById('deleteDialogCancelBtn');
+  const deleteConfirmBtn  = document.getElementById('deleteDialogConfirmBtn');
+  const deleteBtnLabel    = document.getElementById('deleteDialogBtnLabel');
+  const deleteDialogError = document.getElementById('deleteDialogError');
+
+  // Open confirmation dialog
+  if (deleteAccountBtn && deleteDialog) {
+    deleteAccountBtn.addEventListener('click', () => {
+      if (deleteDialogError) {
+        deleteDialogError.textContent = '';
+        deleteDialogError.classList.add('hidden');
+      }
+      if (deleteBtnLabel) deleteBtnLabel.textContent = 'Delete Permanently';
+      if (deleteConfirmBtn) deleteConfirmBtn.disabled = false;
+      deleteDialog.classList.remove('hidden');
+    });
+  }
+
+  // Cancel — close dialog, do nothing
+  if (deleteCancelBtn && deleteDialog) {
+    deleteCancelBtn.addEventListener('click', () => {
+      deleteDialog.classList.add('hidden');
+    });
+  }
+
+  // Confirm — attempt server-side deletion FIRST, then clear local data
+  if (deleteConfirmBtn && deleteDialog) {
+    deleteConfirmBtn.addEventListener('click', async () => {
+      // Read phone before we clear anything
+      const profileRaw = localStorage.getItem('customer_profile');
+      let storedPhone = null;
+      if (profileRaw) {
+        try { storedPhone = JSON.parse(profileRaw)?.phone || null; } catch (e) {}
+      }
+
+      // Update button to loading state
+      if (deleteBtnLabel) deleteBtnLabel.textContent = 'Deleting…';
+      if (deleteConfirmBtn) deleteConfirmBtn.disabled = true;
+      if (deleteDialogError) deleteDialogError.classList.add('hidden');
+
+      try {
+        if (!tempSupabase) throw new Error('No server connection. Please check your internet and try again.');
+
+        // Delete from pending_whatsapp_subscriptions by phone_number
+        if (storedPhone) {
+          const { error: delSub } = await tempSupabase
+            .from('pending_whatsapp_subscriptions')
+            .delete()
+            .eq('phone_number', storedPhone);
+          if (delSub) throw new Error(`Subscription delete error: ${delSub.message}`);
+
+          const { error: delLogs } = await tempSupabase
+            .from('user_app_activity_logs')
+            .delete()
+            .eq('phone_number', storedPhone);
+          if (delLogs) throw new Error(`Activity log delete error: ${delLogs.message}`);
+        }
+
+        // Server deletes succeeded — now clear local state
+        localStorage.removeItem('customer_profile');
+        localStorage.removeItem('whatsapp_onboarded');
+        updateProfileUI();
+
+        // Close dialog and show success message, then re-open onboarding
+        deleteDialog.classList.add('hidden');
+        alert('✅ Your account and all associated data have been permanently deleted from our servers.');
+
+        // Return user to onboarding registration screen
+        const obForm = document.getElementById('whatsappOnboardingForm');
+        if (obForm) obForm.reset();
+        const obOverlay = document.getElementById('whatsappOnboardingOverlay');
+        if (obOverlay) {
+          obOverlay.classList.remove('hidden');
+          document.body.classList.add('onboarding-active');
+          updateBodyScrollLock();
+        }
+
+      } catch (err) {
+        // IMPORTANT: Do NOT clear local data if server delete failed
+        console.error('Delete account error:', err);
+        if (deleteDialogError) {
+          deleteDialogError.textContent = `❌ Deletion failed: ${err.message || 'Network error. Please check your connection and try again.'}`;
+          deleteDialogError.classList.remove('hidden');
+        }
+        if (deleteBtnLabel) deleteBtnLabel.textContent = 'Retry Delete';
+        if (deleteConfirmBtn) deleteConfirmBtn.disabled = false;
+      }
+    });
+  }
+  // ────────────────────────────────────────────────────────────────────────────
 
   // Initial update of Profile Screen UI
   updateProfileUI();
