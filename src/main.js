@@ -140,11 +140,23 @@ function detectDeviceInfo() {
 }
 
 async function logCustomerAppOpen() {
+  const profileRaw = localStorage.getItem('customer_profile');
+  let phone = 'GUEST_DEVICE';
+  let name = 'Guest User';
+  if (profileRaw) {
+    try {
+      const p = JSON.parse(profileRaw);
+      if (p.phone) phone = p.phone;
+      if (p.name) name = p.name;
+    } catch (e) {}
+  }
+
   if (tempSupabase) {
     try {
       const info = detectDeviceInfo();
-      // Only send anonymous device/session data — no personal identifiers
       await tempSupabase.from('user_app_activity_logs').insert([{
+        phone_number: phone,
+        contact_name: name,
         device_type: info.deviceType,
         os_name: info.os,
         browser_name: info.browser,
@@ -799,30 +811,38 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        if (tempSupabase) {
-          const { error } = await tempSupabase
-            .from('pending_whatsapp_subscriptions')
-            .insert([{
-              contact_name: name,
-              phone_number: formattedPhone,
-              shop_name: shop,
-              address: address,
-              preferred_language: lang
-            }]);
+        if (!tempSupabase) throw new Error('Registration database connection is not available.');
 
-          if (error) {
-            console.warn('Registration notice:', error);
-          }
-        }
-      } catch (err) {
-        console.error('Registration submission error:', err);
-      } finally {
+        const { error } = await tempSupabase
+          .from('pending_whatsapp_subscriptions')
+          .insert([{
+            contact_name: name,
+            phone_number: formattedPhone,
+            shop_name: shop,
+            address: address,
+            preferred_language: lang
+          }]);
+
+        if (error) throw error;
+
+        // Success - Save local state
         const profileObj = { name, phone: formattedPhone, shop, address, lang };
         localStorage.setItem('customer_profile', JSON.stringify(profileObj));
         localStorage.setItem('whatsapp_onboarded', 'true');
         updateProfileUI();
         closeOnboarding();
         logCustomerAppOpen();
+
+      } catch (err) {
+        console.error('Registration submission error:', err);
+        if (obErrDiv) {
+          obErrDiv.textContent = `Submission failed: ${err.message || 'Please check your connection and try again.'}`;
+          obErrDiv.classList.remove('hidden');
+        }
+        if (obSubmitBtn) {
+          obSubmitBtn.disabled = false;
+          obSubmitBtn.querySelector('span').textContent = 'Complete Registration';
+        }
       }
     });
   }
@@ -896,8 +916,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (deleteDialogError) deleteDialogError.classList.add('hidden');
 
       try {
-        if (!tempSupabase) throw new Error('Signup server connection is not available.');
-
         // Retrieve or initialize the main project Supabase client
         let mainSupabase = globalSupabase;
         if (!mainSupabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -914,30 +932,36 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('Failed to initialize inline mainSupabase client:', e);
           }
         }
-        if (!mainSupabase) throw new Error('Main server connection is not available.');
+        if (!mainSupabase) throw new Error('Database server connection is not available.');
 
-        let signupProjectError = null;
-        let mainProjectError = null;
+        let delPendingError = null;
+        let delLogsError = null;
+        let delMainError = null;
 
         if (storedPhone) {
-          // 1. Attempt deletions on the signup project (tempSupabase)
+          // 1. Delete from pending_whatsapp_subscriptions
           try {
-            const { error: delSub } = await tempSupabase
+            const { error: delSub } = await mainSupabase
               .from('pending_whatsapp_subscriptions')
               .delete()
               .eq('phone_number', storedPhone);
             if (delSub) throw delSub;
+          } catch (err) {
+            delPendingError = err;
+          }
 
-            const { error: delLogs } = await tempSupabase
+          // 2. Delete from user_app_activity_logs
+          try {
+            const { error: delLogs } = await mainSupabase
               .from('user_app_activity_logs')
               .delete()
               .eq('phone_number', storedPhone);
             if (delLogs) throw delLogs;
           } catch (err) {
-            signupProjectError = err;
+            delLogsError = err;
           }
 
-          // 2. Attempt deletions on the main project (mainSupabase)
+          // 3. Delete from bullion_whatsapp_customers
           try {
             const { error: delMain } = await mainSupabase
               .from('bullion_whatsapp_customers')
@@ -945,23 +969,26 @@ document.addEventListener('DOMContentLoaded', () => {
               .eq('phone_number', storedPhone);
             if (delMain) throw delMain;
           } catch (err) {
-            mainProjectError = err;
+            delMainError = err;
           }
         }
 
         // Handle outcomes
-        if (signupProjectError || mainProjectError) {
+        if (delPendingError || delLogsError || delMainError) {
           // Log specific failures for developer debugging
-          if (signupProjectError) {
-            console.error('[Delete Account Debug] Signup project deletion failed:', signupProjectError);
+          if (delPendingError) {
+            console.error('[Delete Account Debug] pending_whatsapp_subscriptions deletion failed:', delPendingError);
           }
-          if (mainProjectError) {
-            console.error('[Delete Account Debug] Main project (table: bullion_whatsapp_customers) deletion failed:', mainProjectError);
+          if (delLogsError) {
+            console.error('[Delete Account Debug] user_app_activity_logs deletion failed:', delLogsError);
+          }
+          if (delMainError) {
+            console.error('[Delete Account Debug] bullion_whatsapp_customers deletion failed:', delMainError);
           }
 
           // Determine error message for the user based on partial or full failure
-          if (signupProjectError && mainProjectError) {
-            throw new Error('Connection error. Deletion could not be performed on either server. Please try again.');
+          if (delPendingError && delLogsError && delMainError) {
+            throw new Error('Connection error. Deletion could not be performed on the server. Please try again.');
           } else {
             // Partial failure case
             throw new Error('We couldn\'t fully complete your deletion request. Please contact support at ssrcreations41@gmail.com so we can confirm your data is removed everywhere.');
