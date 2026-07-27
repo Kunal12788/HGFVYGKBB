@@ -1113,7 +1113,17 @@ async function goLive(){
   if (!data || data.length === 0) throw new Error("Empty database response");
 
   isInitialLoading = true;
-  data.reverse().forEach(handleRow);
+  // Pre-filter: skip override rows whose mode doesn't match current settings
+  // This prevents stale Admin Manual Override rows from poisoning price history on startup
+  const filteredData = data.filter(row => {
+    const isOverrideRow = !!(row.raw_text && row.raw_text.includes('Admin Manual Override'));
+    if (!isOverrideRow) return true;
+    const dbItem = row.item || row.product_key || '';
+    if (dbItem === 'gold_995_100gms' && !settingsState.use_gold_override) return false;
+    if (dbItem === 'silver_999_1kg' && !settingsState.use_silver_override) return false;
+    return true;
+  });
+  filteredData.reverse().forEach(handleRow);
   isInitialLoading = false;
 
   // Apply initial adjustments to rates
@@ -1152,13 +1162,33 @@ async function goLive(){
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bullion_settings', filter: 'id=eq.1' }, payload => {
         if (payload && payload.new) {
             setMarketActiveState(payload.new.is_active, payload.new.market_closed_reason);
+
+            const prevGoldOverride = settingsState.use_gold_override;
+            const prevSilverOverride = settingsState.use_silver_override;
+
             settingsState.use_gold_override = !!payload.new.use_gold_override;
             settingsState.override_gold = Number(payload.new.override_gold || 0);
             settingsState.use_silver_override = !!payload.new.use_silver_override;
             settingsState.override_silver = Number(payload.new.override_silver || 0);
             settingsState.gold_adjustment = Number(payload.new.gold_adjustment || 0);
             settingsState.silver_adjustment = Number(payload.new.silver_adjustment || 0);
-            
+
+            // If gold override mode changed, clear all gold card histories so graph
+            // and delta % start fresh from the new price mode (no contamination)
+            if (prevGoldOverride !== settingsState.use_gold_override) {
+              ['gold-24k-100g','gold-24k-995-1kg','gold-22k-10g','gold-20k-10g','gold-18k-10g','gold-14k-10g','gold-9k-10g'].forEach(id => {
+                if (state[id]) state[id].history = [];
+              });
+              latestGoldOcr = null;
+            }
+            // If silver override mode changed, clear all silver card histories
+            if (prevSilverOverride !== settingsState.use_silver_override) {
+              ['silver-999-1kg','silver-999-3kg'].forEach(id => {
+                if (state[id]) state[id].history = [];
+              });
+              latestSilverOcr = null;
+            }
+
             // Reapply adjustments and update display immediately
             reapplySettings();
         }
